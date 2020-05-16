@@ -1,3 +1,55 @@
+# DSPCML
+DSPCML is an acronym for Digital Signal Processing C Matrix Library. It is an adaption of the C Matrix Library (CML) library referenced here: https://github.com/MichaelJWelsh/cml
+
+DSPCML aims to add common signal processing functions to the original CML over time. The primary goal is to achieve portability with ability to support optimized signal processing functions for different compilers and toolchains via 'compile-flag'. 
+
+## Notable changes from CML to DSPCML
+* The elementary data type of CML was `double`. In DSPCML this is changed to `cml_sample_t` with the default as `float`. This type alias, along with per-sample math functions, is defined `cml_sample_type.h`
+
+## Signal Processing Function Wishlist
+DSPCML aims to be a strict superset of the functions in CML.
+The signal processing function wish-list is maintained below:
+#### Per-Element (output same dims as input)
+- [x] 10 * LOG10(ABS)
+- [x] 20 * LOG10(ABS)
+- [x] ABS
+- [x] CLIP
+- [ ] GT : `>`
+- [ ] GTE: `>=`
+- [ ] LT : `>`
+- [ ] LTE: `>=`
+
+#### Per-Dimension (output reduced dims from input)
+- [x] Per-Dimension MAX
+- [x] Per-Dimension MEAN
+- [x] Per-Dimension MIN
+- [x] Per-Dimension RMS
+- [x] Per-Dimension SUM
+- [ ] Per-Dimension XMEAN (exclusive mean)
+
+#### Per-Dimension-0 (output same columns as input)
+- [ ] Per-Dimension-0 SOS (cascaded biquads)
+- [ ] Per-Dimension-0 FFT (Real input)
+- [ ] Per-Dimension-0 FFT (Complex input)
+- [ ] Per-Dimension-0 DTFT (Real input)
+- [ ] Per-Dimension-0 DTFT (Complex input)
+
+
+## Optimized Function Wishtable
+DSPCML aims to have optimized versions of functions for different hardware processors.
+The optimized function wish-table is maintained below:
+Hardware              | Biquad / SOS       | FFT / IFFT     | TBD               |
+:-------------------- | :----------------- | :------------- | :---------------- |
+ARM-Cortex-A          |                    |                |                   |
+ARM-Cortex-M          |                    |                |                   |
+ESP32 (Xtensa LX6)    |                    |                |                   |
+ESP32-S2 (Xtensa LX7) |                    |                |                   |
+X-86                  |                    |                |                   |
+X-86-64               |                    |                |                   |
+
+
+The original CML README file is copied below as DSPCML aims to be a superset of CML.
+
 # CML
 CML is a (fully C++ compatible) header-only C matrix library designed with a focus on portability, simplicity, and efficiency written under the POSIX standard. Several computationally-intense functions require/are enhanced by BLAS/LAPACK. The user is able to define optional flags prior to including this library in source code to do things such as removing BLAS/LAPACK as a dependency (while simultaneously removing several functions from API), or giving all functions static storage. CML operates on type 'MATRIX' for all processes. 'MATRIX' is column major so the user can easily interface with the most popular linear-algebra-related API's. 'errno' is used for error handling extensively. 'errno' is set only in the presence of an error. The user is free to disregard 'errno' if an error occurred, but the state of the resultant matrix is undefined. 
 

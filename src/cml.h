@@ -52,6 +52,8 @@ extern "C" {
 #endif
 
 
+#include "cml_sample_type.h"
+
 /* ========================================================
  *
  *                          API
@@ -59,82 +61,101 @@ extern "C" {
  * ======================================================== */
 typedef struct {
     size_t rows, cols;
-    double *data;
+    cml_sample_t *data;
 } MATRIX;
+#define MATRIX_COL2PTR(o, cix) ( (cml_sample_t *)&(o->data[cix*o->rows]) )
+#define MATRIX_CHAN2PTR(o, cix) ( (cml_sample_t *)&(o->data[cix*o->rows]) )
 
 
 /*    ALLOCATION    */
-CML_API     MATRIX*     cml_new(size_t rows, size_t cols);
-CML_API     MATRIX*     cml_dup(MATRIX *m);
-CML_API     MATRIX*     cml_ones(size_t rows, size_t cols);
-CML_API     MATRIX*     cml_identity(size_t dim);
-CML_API     MATRIX*     cml_lower_tri(size_t dim);
-CML_API     MATRIX*     cml_upper_tri(size_t dim);
-CML_API     void        cml_free(MATRIX *m);
+CML_API     MATRIX*      cml_new(size_t rows, size_t cols);
+CML_API     MATRIX*      cml_dup(MATRIX *m);
+CML_API     MATRIX*      cml_ones(size_t rows, size_t cols);
+CML_API     MATRIX*      cml_identity(size_t dim);
+CML_API     MATRIX*      cml_lower_tri(size_t dim);
+CML_API     MATRIX*      cml_upper_tri(size_t dim);
+CML_API     void         cml_free(MATRIX *m);
 
 
 /*    GET/SET    */
-CML_API     double      cml_get(MATRIX *m, size_t row, size_t col);
-CML_API     void        cml_set(MATRIX *m, size_t row, size_t col, double data);
-CML_API     void        cml_set_all(MATRIX *m, double data);
-CML_API     void        cml_set_row(MATRIX *m, size_t row, double data);
-CML_API     void        cml_set_col(MATRIX *m, size_t col, double data);
+CML_API  cml_sample_t  cml_get(MATRIX *m, size_t row, size_t col);
+CML_API  void          cml_set(MATRIX *m, size_t row, size_t col, cml_sample_t data);
+CML_API  void          cml_set_all(MATRIX *m, cml_sample_t data);
+CML_API  void          cml_set_row(MATRIX *m, size_t row, cml_sample_t data);
+CML_API  void          cml_set_col(MATRIX *m, size_t col, cml_sample_t data);
 
 
 /*    PHYSICAL MANIPULATION    */
-CML_API     void        cml_cpy(MATRIX *dest, MATRIX *src);
-CML_API     void        cml_cpy_row(MATRIX *dest, MATRIX *src, size_t dest_row, size_t src_row);
-CML_API     void        cml_cpy_col(MATRIX *dest, MATRIX *src, size_t dest_col, size_t src_col);
-CML_API     void        cml_cpy_elem(MATRIX *dest, MATRIX *src, size_t dest_row, size_t dest_col, size_t src_row, size_t src_col);
-CML_API     void        cml_cpy_self_row(MATRIX *m, size_t dest_row, size_t src_row);
-CML_API     void        cml_cpy_self_col(MATRIX *m, size_t dest_col, size_t src_col);
-CML_API     void        cml_cpy_self_elem(MATRIX *m, size_t dest_row, size_t dest_col, size_t src_row, size_t src_col);
-CML_API     void        cml_swap(MATRIX *m1, MATRIX *m2);
-CML_API     void        cml_swap_row(MATRIX *m1, MATRIX *m2, size_t m1_row, size_t m2_row);
-CML_API     void        cml_swap_col(MATRIX *m1, MATRIX *m2, size_t m1_col, size_t m2_col);
-CML_API     void        cml_swap_elem(MATRIX *m1, MATRIX *m2, size_t m1_row, size_t m1_col, size_t m2_row, size_t m2_col);
-CML_API     void        cml_swap_self_row(MATRIX *m, size_t row_1, size_t row_2);
-CML_API     void        cml_swap_self_col(MATRIX *m, size_t col_1, size_t col_2);
-CML_API     void        cml_swap_self_elem(MATRIX *m, size_t row_1, size_t col_1, size_t row_2, size_t col_2);
-CML_API     void        cml_ins_row(MATRIX *dest, MATRIX *src, size_t dest_row, size_t src_row);
-CML_API     void        cml_ins_col(MATRIX *dest, MATRIX *src, size_t dest_col, size_t src_col);
-CML_API     void        cml_ins_self_row(MATRIX *m, size_t dest_row, size_t src_row);
-CML_API     void        cml_ins_self_col(MATRIX *m, size_t dest_col, size_t src_col);
-CML_API     void        cml_del_all(MATRIX *m);
-CML_API     void        cml_del_row(MATRIX *m, size_t row);
-CML_API     void        cml_del_col(MATRIX *m, size_t col);
-CML_API     void        cml_adjoin_top(MATRIX *dest, MATRIX *src);
-CML_API     void        cml_adjoin_bottom(MATRIX *dest, MATRIX *src);
-CML_API     void        cml_adjoin_left(MATRIX *dest, MATRIX *src);
-CML_API     void        cml_adjoin_right(MATRIX *dest, MATRIX *src);
+CML_API  void          cml_cpy(MATRIX *dest, MATRIX *src);
+CML_API  void          cml_cpy_row(MATRIX *dest, MATRIX *src, size_t dest_row, size_t src_row);
+CML_API  void          cml_cpy_col(MATRIX *dest, MATRIX *src, size_t dest_col, size_t src_col);
+CML_API  void          cml_cpy_elem(MATRIX *dest, MATRIX *src, size_t dest_row, size_t dest_col, size_t src_row, size_t src_col);
+CML_API  void          cml_cpy_self_row(MATRIX *m, size_t dest_row, size_t src_row);
+CML_API  void          cml_cpy_self_col(MATRIX *m, size_t dest_col, size_t src_col);
+CML_API  void          cml_cpy_self_elem(MATRIX *m, size_t dest_row, size_t dest_col, size_t src_row, size_t src_col);
+CML_API  void          cml_swap(MATRIX *m1, MATRIX *m2);
+CML_API  void          cml_swap_row(MATRIX *m1, MATRIX *m2, size_t m1_row, size_t m2_row);
+CML_API  void          cml_swap_col(MATRIX *m1, MATRIX *m2, size_t m1_col, size_t m2_col);
+CML_API  void          cml_swap_elem(MATRIX *m1, MATRIX *m2, size_t m1_row, size_t m1_col, size_t m2_row, size_t m2_col);
+CML_API  void          cml_swap_self_row(MATRIX *m, size_t row_1, size_t row_2);
+CML_API  void          cml_swap_self_col(MATRIX *m, size_t col_1, size_t col_2);
+CML_API  void          cml_swap_self_elem(MATRIX *m, size_t row_1, size_t col_1, size_t row_2, size_t col_2);
+CML_API  void          cml_ins_row(MATRIX *dest, MATRIX *src, size_t dest_row, size_t src_row);
+CML_API  void          cml_ins_col(MATRIX *dest, MATRIX *src, size_t dest_col, size_t src_col);
+CML_API  void          cml_ins_self_row(MATRIX *m, size_t dest_row, size_t src_row);
+CML_API  void          cml_ins_self_col(MATRIX *m, size_t dest_col, size_t src_col);
+CML_API  void          cml_del_all(MATRIX *m);
+CML_API  void          cml_del_row(MATRIX *m, size_t row);
+CML_API  void          cml_del_col(MATRIX *m, size_t col);
+CML_API  void          cml_adjoin_top(MATRIX *dest, MATRIX *src);
+CML_API  void          cml_adjoin_bottom(MATRIX *dest, MATRIX *src);
+CML_API  void          cml_adjoin_left(MATRIX *dest, MATRIX *src);
+CML_API  void          cml_adjoin_right(MATRIX *dest, MATRIX *src);
 
 
 /*    ARITHMETIC    */
-CML_API     void        cml_add_const(MATRIX *m, double data, MATRIX *opt);
-CML_API     void        cml_mul_const(MATRIX *m, double data, MATRIX *opt);
-CML_API     void        cml_add(MATRIX *m1, MATRIX *m2, MATRIX *opt);
-CML_API     void        cml_sub(MATRIX *m1, MATRIX *m2, MATRIX *opt);
-CML_API     void        cml_mul(MATRIX *m1, MATRIX *m2, MATRIX *opt);
-CML_API     void        cml_mul_elem(MATRIX *m1, MATRIX *m2, MATRIX *opt);
-CML_API     void        cml_div_elem(MATRIX *m1, MATRIX *m2, MATRIX *opt);
+CML_API  void          cml_add_const(MATRIX *m, cml_sample_t data, MATRIX *opt);
+CML_API  void          cml_mul_const(MATRIX *m, cml_sample_t data, MATRIX *opt);
+CML_API  void          cml_add(MATRIX *m1, MATRIX *m2, MATRIX *opt);
+CML_API  void          cml_sub(MATRIX *m1, MATRIX *m2, MATRIX *opt);
+CML_API  void          cml_mul(MATRIX *m1, MATRIX *m2, MATRIX *opt);
+CML_API  void          cml_mul_elem(MATRIX *m1, MATRIX *m2, MATRIX *opt);
+CML_API  void          cml_div_elem(MATRIX *m1, MATRIX *m2, MATRIX *opt);
+
+
+/*    SIGNAL PROCESSSING    */
+CML_API  cml_sample_t  cml_sum(MATRIX *m);
+CML_API  void          cml_sum_dim(MATRIX *m, size_t dim, MATRIX *opt);
+CML_API  cml_sample_t  cml_mean(MATRIX *m);
+CML_API  void          cml_mean_dim(MATRIX *m, size_t dim, MATRIX *opt);
+CML_API  cml_sample_t  cml_rms(MATRIX *m);
+CML_API  void          cml_rms_dim(MATRIX *m, size_t dim, MATRIX *opt);
+CML_API  void          cml_abs(MATRIX *m, MATRIX *opt);
+CML_API  void          cml_pow_mat2x(MATRIX *m, cml_sample_t data, MATRIX *opt);
+CML_API  void          cml_pow_x2mat(cml_sample_t data, MATRIX *m, MATRIX *opt);
+CML_API  void          cml_10_log10_abs(MATRIX *m, MATRIX *opt);
+CML_API  void          cml_20_log10_abs(MATRIX *m, MATRIX *opt);
+CML_API  void          cml_clip(MATRIX *m, cml_sample_t lolim, cml_sample_t hilim, MATRIX *opt);
 
 
 /*    OTHER OPERATIONS    */
-CML_API     double      cml_min(MATRIX *m);
-CML_API     double      cml_max(MATRIX *m);
-CML_API     bool        cml_is_zero(MATRIX *m);
-CML_API     bool        cml_is_pos(MATRIX *m);
-CML_API     bool        cml_is_neg(MATRIX *m);
-CML_API     bool        cml_is_nonneg(MATRIX *m);
-CML_API     bool        cml_is_equal(MATRIX *m1, MATRIX *m2);
-CML_API     void        cml_transpose(MATRIX *m, MATRIX *opt);
-CML_API     void        cml_normalize(MATRIX *m, MATRIX *opt);
+CML_API  cml_sample_t  cml_min(MATRIX *m);
+CML_API  cml_sample_t  cml_max(MATRIX *m);
+CML_API  void          cml_min_dim(MATRIX *m, size_t dim, MATRIX *opt);
+CML_API  void          cml_max_dim(MATRIX *m, size_t dim, MATRIX *opt);
+CML_API  bool          cml_is_zero(MATRIX *m);
+CML_API  bool          cml_is_pos(MATRIX *m);
+CML_API  bool          cml_is_neg(MATRIX *m);
+CML_API  bool          cml_is_nonneg(MATRIX *m);
+CML_API  bool          cml_is_equal(MATRIX *m1, MATRIX *m2);
+CML_API  void          cml_transpose(MATRIX *m, MATRIX *opt);
+CML_API  void          cml_normalize(MATRIX *m, MATRIX *opt);
 
 
 /*    OTHER OPERATIONS (BLAS/LAPACK REQUIRED)    */
 #ifndef CML_NO_DEPENDENCIES
-CML_API     bool        cml_inverse(MATRIX *m, MATRIX *opt);
-CML_API     bool        cml_sys_equ(MATRIX *A, MATRIX *B, MATRIX *opt);
+CML_API  bool          cml_inverse(MATRIX *m, MATRIX *opt);
+CML_API  bool          cml_sys_equ(MATRIX *A, MATRIX *B, MATRIX *opt);
 #endif
 
 
@@ -166,7 +187,8 @@ extern "C" {
 #include "vec.h" 
 
 
-#ifndef CML_NO_DEPENDENCIES 
+#ifndef CML_NO_DEPENDENCIES
+/* TODO - handle single vs. double routines */ 
 void dgemm_(char*, char*, int*, int*, int*, double*, double*, int*, double*, int*, double*, double*, int*);
 void dgetrf_(int*, int*, double*, int*, int*, int*);
 void dgetri_(int*, double*, int*, int*, double*, int*, int*);
@@ -195,7 +217,7 @@ CML_API MATRIX* cml_new(size_t rows, size_t cols) {
 
     m->rows = rows;
     m->cols = cols;
-    m->data = (double *) vec_new_cap(sizeof(double), rows * cols);
+    m->data = (cml_sample_t *) vec_new_cap(sizeof(cml_sample_t), rows * cols);
 
     if (m->data == NULL) {
         free(m);
@@ -306,7 +328,7 @@ CML_API void cml_free(MATRIX *m) {
 }
 
 
-CML_API double cml_get(MATRIX *m, size_t row, size_t col) {
+CML_API cml_sample_t cml_get(MATRIX *m, size_t row, size_t col) {
     if (m == NULL || row >= m->rows || col >= m->cols) {
         errno = EINVAL;
         return 0;
@@ -316,7 +338,7 @@ CML_API double cml_get(MATRIX *m, size_t row, size_t col) {
 }
 
 
-CML_API void cml_set(MATRIX *m, size_t row, size_t col, double data) {
+CML_API void cml_set(MATRIX *m, size_t row, size_t col, cml_sample_t data) {
     if (m == NULL || row >= m->rows || col >= m->cols) {
         errno = EINVAL;
         return;
@@ -326,7 +348,7 @@ CML_API void cml_set(MATRIX *m, size_t row, size_t col, double data) {
 }
 
 
-CML_API void cml_set_all(MATRIX *m, double data) {
+CML_API void cml_set_all(MATRIX *m, cml_sample_t data) {
     if (m == NULL) {
         errno = EINVAL;
         return;
@@ -338,7 +360,7 @@ CML_API void cml_set_all(MATRIX *m, double data) {
 }
 
 
-CML_API void cml_set_row(MATRIX *m, size_t row, double data) {
+CML_API void cml_set_row(MATRIX *m, size_t row, cml_sample_t data) {
     if (m == NULL || row >= m->rows) {
         errno = EINVAL;
         return;
@@ -350,7 +372,7 @@ CML_API void cml_set_row(MATRIX *m, size_t row, double data) {
 }
 
 
-CML_API void cml_set_col(MATRIX *m, size_t col, double data) {
+CML_API void cml_set_col(MATRIX *m, size_t col, cml_sample_t data) {
     if (m == NULL || col >= m->cols) {
         errno = EINVAL;
         return;
@@ -370,7 +392,7 @@ CML_API void cml_cpy(MATRIX *dest, MATRIX *src) {
 
     int old_errno = errno;
     errno = 0;
-    double *copied_data = (double *) vec_dup(src->data);
+    cml_sample_t *copied_data = (cml_sample_t *) vec_dup(src->data);
 
     if (errno) {
         return;
@@ -778,7 +800,7 @@ CML_API void cml_adjoin_right(MATRIX *dest, MATRIX *src) {
 }
 
 
-CML_API void cml_add_const(MATRIX *m, double data, MATRIX *opt) {
+CML_API void cml_add_const(MATRIX *m, cml_sample_t data, MATRIX *opt) {
     if (m == NULL || m == opt || m->rows == 0) {
         errno = EINVAL;
         return;
@@ -794,7 +816,7 @@ CML_API void cml_add_const(MATRIX *m, double data, MATRIX *opt) {
 }
 
 
-CML_API void cml_mul_const(MATRIX *m, double data, MATRIX *opt) {
+CML_API void cml_mul_const(MATRIX *m, cml_sample_t data, MATRIX *opt) {
     if (m == NULL || m == opt || m->rows == 0) {
         errno = EINVAL;
         return;
@@ -855,18 +877,19 @@ CML_API void cml_mul(MATRIX *m1, MATRIX *m2, MATRIX *opt) {
     } 
 
     #ifndef CML_NO_DEPENDENCIES
+    /* TODO - handle single vs. double precision */
     char notrans[2] = "N";
     int m = (int) m1->rows;
     int n = (int) m2->cols;
     int k = (int) m1->cols;
-    double alpha = 1;
-    double beta = 0;
+    cml_sample_t alpha = 1;
+    cml_sample_t beta = 0;
 
     dgemm_(notrans, notrans, &m, &n, &k, &alpha, m1->data, &m, m2->data, &k, &beta, result->data, &m);
     #else
     for (size_t i = 0; i < m1->rows; ++i) {
         for (size_t j = 0; j < m2->cols; ++j) {
-            double sum = 0;
+            cml_sample_t sum = 0;
             for (size_t k = 0; k < m1->cols; ++k) {
                 sum += cml_get(m1, i, k) * cml_get(m2, k, j);
             }
@@ -916,13 +939,231 @@ CML_API void cml_div_elem(MATRIX *m1, MATRIX *m2, MATRIX *opt) {
 }
 
 
-CML_API double cml_min(MATRIX *m) {
+CML_API cml_sample_t cml_sum(MATRIX *m) {
     if (m == NULL || m->rows == 0) {
         errno = EINVAL;
         return 0;
     }
 
-    double min = cml_get(m, 0, 0);
+    cml_sample_t sum;
+    for (size_t i = 0; i < m->rows; ++i) {
+        for (size_t j = 0; j < m->cols; ++j) {
+            sum += cml_get(m, i, j);
+        }
+    }
+}
+
+
+CML_API void cml_sum_dim(MATRIX *m, size_t dim, MATRIX *opt) {
+    if (m == NULL || m->rows == 0) {
+        errno = EINVAL;
+        return;
+    }
+    /* TODO assert size checks */
+
+    if(0 == dim) {
+        for (size_t j = 0; j < m->cols; ++j) {
+            cml_sample_t sum = 0;
+            for (size_t i = 0; i < m->rows; ++i) {
+                sum += cml_get(m, i, j);
+            }
+        }
+
+    }
+    else if(1 == dim) {
+        for (size_t i = 0; i < m->rows; ++i) {
+            cml_sample_t sum = 0;
+            for (size_t j = 0; j < m->cols; ++j) {
+                sum += cml_get(m, i, j);
+            }
+            cml_set(opt, i, 0, sum);
+        }
+    }
+}
+
+
+CML_API cml_sample_t cml_mean(MATRIX *m) {
+    if (m == NULL || m->rows == 0) {
+        errno = EINVAL;
+        return 0;
+    }
+    return cml_sum(m) / (m->rows * m->cols);
+}
+
+
+CML_API void cml_mean_dim(MATRIX *m, size_t dim, MATRIX *opt) {
+    if (m == NULL || m->rows == 0) {
+        errno = EINVAL;
+        return;
+    }
+    /* TODO assert size checks */
+
+    cml_sum_dim(m, dim, opt);
+    if(0 == dim) {
+        cml_mul_const(opt, (cml_sample_t)1/(cml_sample_t)m->rows, NULL);
+    }
+    else if(1 == dim) {
+        cml_mul_const(opt, (cml_sample_t)1/(cml_sample_t)m->cols, NULL);
+    }
+}
+
+
+CML_API cml_sample_t cml_rms(MATRIX *m){
+    if (m == NULL || m->rows == 0) {
+        errno = EINVAL;
+        return 0;
+    }
+
+    cml_sample_t tmp;
+    for (size_t i = 0; i < m->rows; ++i) {
+        for (size_t j = 0; j < m->cols; ++j) {
+            tmp += cml_sample_square(cml_get(m, i, j));
+        }
+    }
+    return cml_sample_sqrt(tmp / (cml_sample_t)(m->rows * m->cols));
+}
+
+
+// CML_API  void          cml_rms_dim(MATRIX *m, MATRIX *opt, size_t dim);
+
+
+CML_API void cml_abs(MATRIX *m, MATRIX *opt) {
+    if (m == NULL || m->rows == 0) {
+        errno = EINVAL;
+        return;
+    }
+    /* TODO assert size checks */
+
+    if (opt == NULL) {
+        opt = m;
+    } 
+
+    for (size_t i = 0; i < m->rows; ++i) {
+        for (size_t j = 0; j < m->cols; ++j) {
+            cml_sample_t tmp = cml_sample_abs(cml_get(m, i, j));
+            cml_set(opt, i, j, tmp);
+        }
+    }
+}
+
+
+CML_API void cml_pow_mat2const(MATRIX *m, cml_sample_t data, MATRIX *opt) {
+    if (m == NULL || m->rows == 0) {
+        errno = EINVAL;
+        return;
+    }
+    /* TODO assert size checks */
+
+    if (opt == NULL) {
+        opt = m;
+    } 
+
+    for (size_t i = 0; i < m->rows; ++i) {
+        for (size_t j = 0; j < m->cols; ++j) {
+            cml_sample_t tmp = cml_sample_pow(cml_get(m, i, j), data);
+            cml_set(opt, i, j, tmp);
+        }
+    }
+}
+
+
+CML_API void cml_pow_const2mat(cml_sample_t data, MATRIX *m, MATRIX *opt) {
+    if (m == NULL || m->rows == 0) {
+        errno = EINVAL;
+        return;
+    }
+    /* TODO assert size checks */
+
+    if (opt == NULL) {
+        opt = m;
+    } 
+
+    for (size_t i = 0; i < m->rows; ++i) {
+        for (size_t j = 0; j < m->cols; ++j) {
+            cml_sample_t tmp = cml_sample_pow(data, cml_get(m, i, j));
+            cml_set(opt, i, j, tmp);
+        }
+    }
+}
+
+
+CML_API void cml_log10(MATRIX *m, MATRIX *opt) {
+    if (m == NULL || m->rows == 0) {
+        errno = EINVAL;
+        return;
+    }
+    /* TODO assert size checks */
+
+    if (opt == NULL) {
+        opt = m;
+    } 
+
+    for (size_t i = 0; i < m->rows; ++i) {
+        for (size_t j = 0; j < m->cols; ++j) {
+            cml_sample_t tmp = cml_sample_log10(cml_get(m, i, j));
+            cml_set(opt, i, j, tmp);
+        }
+    }
+}
+
+
+CML_API void cml_const_log10_abs(MATRIX *m, cml_sample_t data, MATRIX *opt) {
+    if (m == NULL || m->rows == 0) {
+        errno = EINVAL;
+        return;
+    }
+    /* TODO assert size checks */
+
+    if (opt == NULL) {
+        opt = m;
+    }
+
+    cml_abs(m, opt);
+    cml_log10(opt, opt);
+    cml_mul_const(opt, (cml_sample_t)data, opt);
+}
+
+
+CML_API void cml_10_log10_abs(MATRIX *m, MATRIX *opt) {
+    cml_const_log10_abs(m, (cml_sample_t)10, opt);
+}
+
+CML_API void cml_20_log10_abs(MATRIX *m, MATRIX *opt) {
+    cml_const_log10_abs(m, (cml_sample_t)20, opt);
+}
+
+
+CML_API void cml_clip(MATRIX *m, cml_sample_t lolim, cml_sample_t hilim, MATRIX *opt) {
+    if (m == NULL || m->rows == 0) {
+        errno = EINVAL;
+        return;
+    }
+    /* TODO assert size checks */
+
+    if (opt == NULL) {
+        opt = m;
+    } 
+
+    for (size_t i = 0; i < m->rows; ++i) {
+        for (size_t j = 0; j < m->cols; ++j) {
+            if(cml_get(m, i, j) < lolim) {
+                cml_set(m, i, j, lolim);
+            }
+            else if(cml_get(m, i, j) > hilim) {
+                cml_set(m, i, j, hilim);
+            }
+        }
+    }
+}
+
+
+CML_API cml_sample_t cml_min(MATRIX *m) {
+    if (m == NULL || m->rows == 0) {
+        errno = EINVAL;
+        return 0;
+    }
+
+    cml_sample_t min = cml_get(m, 0, 0);
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
             if (min > cml_get(m, i, j)) {
@@ -935,13 +1176,47 @@ CML_API double cml_min(MATRIX *m) {
 }
 
 
-CML_API double cml_max(MATRIX *m) {
+CML_API void cml_min_dim(MATRIX *m, size_t dim, MATRIX *opt) {
+    if (m == NULL || m->rows == 0) {
+        errno = EINVAL;
+        return;
+    }
+
+    if(dim==0) { /* min per 0th dimension */
+        /* TODO assert size checks */
+        for (size_t j = 0; j < m->cols; ++j) {
+            cml_sample_t min = cml_get(m, 0, j);
+            for (size_t i = 0; i < m->cols; ++i) {
+                if (min > cml_get(m, i, j)) {
+                    min = cml_get(m, i, j);
+                }
+            }
+            cml_set(opt, j, 0, min);
+        }
+    }
+    else if(dim==1) { /* min per 0th dimension */
+        /* TODO assert size checks */
+        for (size_t i = 0; i < m->rows; ++i) {
+            cml_sample_t min = cml_get(m, i, 0);
+            for (size_t j = 0; j < m->cols; ++j) {
+                if (min > cml_get(m, i, j)) {
+                    min = cml_get(m, i, j);
+                }
+            }
+            cml_set(opt, i, 0, min);
+        }
+    }
+}
+
+
+
+CML_API cml_sample_t cml_max(MATRIX *m) {
     if (m == NULL || m->rows == 0) {
         errno = EINVAL;
         return 0;
     }
 
-    double max = cml_get(m, 0, 0);
+    cml_sample_t max = cml_get(m, 0, 0);
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
             if (max < cml_get(m, i, j)) {
@@ -951,6 +1226,40 @@ CML_API double cml_max(MATRIX *m) {
     }
 
     return max;
+}
+
+
+CML_API void cml_max_dim(MATRIX *m, size_t dim, MATRIX *opt) {
+    if (m == NULL || m->rows == 0) {
+        errno = EINVAL;
+        return;
+    }
+
+    if(dim==0) { /* max per 0th dimension */
+        /* TODO assert size checks */
+        for (size_t j = 0; j < m->cols; ++j) {
+            cml_sample_t max = cml_get(m, 0, j);
+            for (size_t i = 0; i < m->cols; ++i) {
+                if (max < cml_get(m, i, j)) {
+                    max = cml_get(m, i, j);
+                }
+            }
+            cml_set(opt, j, 0, max);
+        }
+    }
+    else if(dim==1) { /* max per 0th dimension */
+        /* TODO assert size checks */
+        for (size_t i = 0; i < m->rows; ++i) {
+            cml_sample_t max = cml_get(m, i, 0);
+            for (size_t j = 0; j < m->cols; ++j) {
+                if (max < cml_get(m, i, j)) {
+                    max = cml_get(m, i, j);
+                }
+            }
+            cml_set(opt, i, 0, max);
+        }
+    }
+    return;
 }
 
 
@@ -970,6 +1279,9 @@ CML_API bool cml_is_zero(MATRIX *m) {
 }
 
 
+// CML_API bool cml_is_zero_dim(MATRIX *m, size_t dim, MATRIX *opt);
+
+
 CML_API bool cml_is_pos(MATRIX *m) {
     if (m == NULL || m->rows == 0) {
         errno = EINVAL;
@@ -986,6 +1298,9 @@ CML_API bool cml_is_pos(MATRIX *m) {
 }
 
 
+// CML_API bool cml_is_pos_dim(MATRIX *m, size_t dim, MATRIX *opt) {}
+
+
 CML_API bool cml_is_nonneg(MATRIX *m) {
     if (m == NULL || m->rows == 0) {
         errno = EINVAL;
@@ -1000,6 +1315,9 @@ CML_API bool cml_is_nonneg(MATRIX *m) {
 
     return true;
 }
+
+
+// CML_API bool cml_is_pos_nonneg_dim(MATRIX *m, size_t dim, MATRIX *opt) {}
 
 
 CML_API bool cml_is_equal(MATRIX *m1, MATRIX *m2) {
@@ -1052,12 +1370,15 @@ CML_API void cml_normalize(MATRIX *m, MATRIX *opt) {
         cml_cpy(opt, m);
         m = opt;
     }
-    double min = cml_min(m);
-    double max = cml_max(m);
+    cml_sample_t min = cml_min(m);
+    cml_sample_t max = cml_max(m);
     for (size_t i = 0; i < vec_len(m->data); ++i) {
         m->data[i] = (m->data[i] - min) / (max - min);
     }
 }
+
+
+CML_API void cml_normalize_dim(MATRIX *m, size_t dim, MATRIX *opt);
 
 
 #ifndef CML_NO_DEPENDENCIES
@@ -1090,7 +1411,7 @@ CML_API bool cml_inverse(MATRIX *m, MATRIX *opt) {
     int n = (int) m->rows;
     int ipiv[n];
     int lwork = n * n;
-    double work[lwork];
+    cml_sample_t work[lwork];
     int info;
     dgetrf_(&n, &n, m->data, &n, ipiv, &info);
     dgetri_(&n, m->data, &n, ipiv, work, &lwork, &info);

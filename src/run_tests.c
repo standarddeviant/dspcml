@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 #define CML_IMPLEMENTATION
-#include "cml.h"
+#include "dspcml.h"
 
 void print_matrix(MATRIX *m, int call_number) {
 	printf("Call %d:\nrows: %zd\ncols: %zd\n", call_number, m->rows, m->cols);

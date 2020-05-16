@@ -15,7 +15,7 @@ extern "C" {
 #define cml_sample_log10 log10f
 #define cml_sample_square(x) (x*x)
 #define cml_sample_sqrt sqrtf
-#define cml_sample_abs abs
+#define cml_sample_abs fabsf
 #endif
 
 #ifdef __cplusplus

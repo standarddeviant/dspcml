@@ -52,7 +52,7 @@ extern "C" {
 #endif
 
 
-#include "cml_sample_type.h"
+#include "dspcml_sample_type.h"
 
 /* ========================================================
  *
@@ -945,12 +945,13 @@ CML_API cml_sample_t cml_sum(MATRIX *m) {
         return 0;
     }
 
-    cml_sample_t sum;
+    cml_sample_t sum = 0;
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
             sum += cml_get(m, i, j);
         }
     }
+    return sum;
 }
 
 

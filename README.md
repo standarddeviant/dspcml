@@ -4,7 +4,7 @@ DSPCML is an acronym for Digital Signal Processing C Matrix Library. It is an ad
 DSPCML aims to add common signal processing functions to the original CML over time. The primary goal is to achieve portability with ability to support optimized signal processing functions for different compilers and toolchains via 'compile-flag'. 
 
 ## Notable changes from CML to DSPCML
-* The elementary data type of CML was `double`. In DSPCML this is changed to `cml_real_t` with the default as `float`. This type alias, along with per-sample math functions, is defined `cml_sample_type.h`
+* The elementary data type of CML was `double`. In DSPCML this is changed to `cml_real_t` with the default as `float`. This type alias, along with per-sample math functions, is defined `cml_real_type.h`
 
 ## Signal Processing Function Wishlist
 DSPCML aims to be a strict superset of the functions in CML.

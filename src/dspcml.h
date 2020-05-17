@@ -1064,10 +1064,10 @@ CML_API cml_real_t cml_rms(MATRIX *m){
     cml_real_t tmp;
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
-            tmp += cml_sample_square(cml_get(m, i, j));
+            tmp += cml_real_square(cml_get(m, i, j));
         }
     }
-    return cml_sample_sqrt(tmp / (cml_real_t)(m->rows * m->cols));
+    return cml_real_sqrt(tmp / (cml_real_t)(m->rows * m->cols));
 }
 
 
@@ -1087,7 +1087,7 @@ CML_API void cml_abs(MATRIX *m, MATRIX *opt) {
 
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
-            cml_real_t tmp = cml_sample_abs(cml_get(m, i, j));
+            cml_real_t tmp = cml_real_abs(cml_get(m, i, j));
             cml_set(opt, i, j, tmp);
         }
     }
@@ -1107,7 +1107,7 @@ CML_API void cml_pow_mat2const(MATRIX *m, cml_real_t data, MATRIX *opt) {
 
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
-            cml_real_t tmp = cml_sample_pow(cml_get(m, i, j), data);
+            cml_real_t tmp = cml_real_pow(cml_get(m, i, j), data);
             cml_set(opt, i, j, tmp);
         }
     }
@@ -1127,7 +1127,7 @@ CML_API void cml_pow_const2mat(cml_real_t data, MATRIX *m, MATRIX *opt) {
 
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
-            cml_real_t tmp = cml_sample_pow(data, cml_get(m, i, j));
+            cml_real_t tmp = cml_real_pow(data, cml_get(m, i, j));
             cml_set(opt, i, j, tmp);
         }
     }
@@ -1147,7 +1147,7 @@ CML_API void cml_log10(MATRIX *m, MATRIX *opt) {
 
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
-            cml_real_t tmp = cml_sample_log10(cml_get(m, i, j));
+            cml_real_t tmp = cml_real_log10(cml_get(m, i, j));
             cml_set(opt, i, j, tmp);
         }
     }

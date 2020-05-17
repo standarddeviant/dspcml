@@ -61,14 +61,14 @@ extern "C" {
  * ======================================================== */
 typedef struct {
     size_t rows, cols;
-    cml_sample_t *data;
+    cml_real_t *data;
 } MATRIX;
-#define MATRIX_COL2PTR(o, cix) ( (cml_sample_t *)&(o->data[cix*o->rows]) )
-#define MATRIX_CHAN2PTR(o, cix) ( (cml_sample_t *)&(o->data[cix*o->rows]) )
+#define MATRIX_COL2PTR(o, cix) ( (cml_real_t *)&(o->data[cix*o->rows]) )
+#define MATRIX_CHAN2PTR(o, cix) ( (cml_real_t *)&(o->data[cix*o->rows]) )
 
 typedef struct BIQUAD {
-    cml_sample_t coef[5];
-    cml_sample_t w[2];
+    cml_real_t coef[5];
+    cml_real_t w[2];
 } BIQUAD;
 
 typedef struct SOS {
@@ -89,19 +89,19 @@ CML_API  MATRIX*       cml_identity(size_t dim);
 CML_API  MATRIX*       cml_lower_tri(size_t dim);
 CML_API  MATRIX*       cml_upper_tri(size_t dim);
 CML_API  void          cml_free(MATRIX *m);
-CML_API  BIQUAD*       cml_biquad_new(cml_sample_t *coeffs);
-CML_API  SOS*          cml_sos_new(size_t nb_bq, cml_sample_t *coeffs);
-CML_API  SOS_MULTI*    cml_sos_multi_new(size_t nb_ch, size_t nb_bq, cml_sample_t *coeffs);
+CML_API  BIQUAD*       cml_biquad_new(cml_real_t *coeffs);
+CML_API  SOS*          cml_sos_new(size_t nb_bq, cml_real_t *coeffs);
+CML_API  SOS_MULTI*    cml_sos_multi_new(size_t nb_ch, size_t nb_bq, cml_real_t *coeffs);
 
 
 /*    GET/SET    */
-CML_API  cml_sample_t  cml_get(MATRIX *m, size_t row, size_t col);
-CML_API  void          cml_set(MATRIX *m, size_t row, size_t col, cml_sample_t data);
-CML_API  void          cml_set_all(MATRIX *m, cml_sample_t data);
-CML_API  void          cml_set_row(MATRIX *m, size_t row, cml_sample_t data);
-CML_API  void          cml_set_col(MATRIX *m, size_t col, cml_sample_t data);
-CML_API  void          cml_set_bq_coeffs(BIQUAD *bq, cml_sample_t *coeffs);
-CML_API  void          cml_set_sos_coeffs(BIQUAD *bq, cml_sample_t *coeffs);
+CML_API  cml_real_t  cml_get(MATRIX *m, size_t row, size_t col);
+CML_API  void          cml_set(MATRIX *m, size_t row, size_t col, cml_real_t data);
+CML_API  void          cml_set_all(MATRIX *m, cml_real_t data);
+CML_API  void          cml_set_row(MATRIX *m, size_t row, cml_real_t data);
+CML_API  void          cml_set_col(MATRIX *m, size_t col, cml_real_t data);
+CML_API  void          cml_set_bq_coeffs(BIQUAD *bq, cml_real_t *coeffs);
+CML_API  void          cml_set_sos_coeffs(BIQUAD *bq, cml_real_t *coeffs);
 CML_API  void          cml_set_bq_state_zero(BIQUAD *bq);
 CML_API  void          cml_set_sos_state_zero(SOS *ss);
 CML_API  void          cml_set_sos_multi_state_zero(SOS_MULTI *sm);
@@ -136,8 +136,8 @@ CML_API  void          cml_adjoin_right(MATRIX *dest, MATRIX *src);
 
 
 /*    ARITHMETIC    */
-CML_API  void          cml_add_const(MATRIX *m, cml_sample_t data, MATRIX *opt);
-CML_API  void          cml_mul_const(MATRIX *m, cml_sample_t data, MATRIX *opt);
+CML_API  void          cml_add_const(MATRIX *m, cml_real_t data, MATRIX *opt);
+CML_API  void          cml_mul_const(MATRIX *m, cml_real_t data, MATRIX *opt);
 CML_API  void          cml_add(MATRIX *m1, MATRIX *m2, MATRIX *opt);
 CML_API  void          cml_sub(MATRIX *m1, MATRIX *m2, MATRIX *opt);
 CML_API  void          cml_mul(MATRIX *m1, MATRIX *m2, MATRIX *opt);
@@ -146,31 +146,31 @@ CML_API  void          cml_div_elem(MATRIX *m1, MATRIX *m2, MATRIX *opt);
 
 
 /*    SIGNAL PROCESSSING (MATRIX ONLY)   */
-CML_API  cml_sample_t  cml_sum(MATRIX *m);
+CML_API  cml_real_t  cml_sum(MATRIX *m);
 CML_API  void          cml_sum_dim(MATRIX *m, size_t dim, MATRIX *opt);
-CML_API  cml_sample_t  cml_mean(MATRIX *m);
+CML_API  cml_real_t  cml_mean(MATRIX *m);
 CML_API  void          cml_mean_dim(MATRIX *m, size_t dim, MATRIX *opt);
-CML_API  cml_sample_t  cml_rms(MATRIX *m);
+CML_API  cml_real_t  cml_rms(MATRIX *m);
 CML_API  void          cml_rms_dim(MATRIX *m, size_t dim, MATRIX *opt);
 CML_API  void          cml_abs(MATRIX *m, MATRIX *opt);
-CML_API  void          cml_pow_mat2x(MATRIX *m, cml_sample_t data, MATRIX *opt);
-CML_API  void          cml_pow_x2mat(cml_sample_t data, MATRIX *m, MATRIX *opt);
+CML_API  void          cml_pow_mat2x(MATRIX *m, cml_real_t data, MATRIX *opt);
+CML_API  void          cml_pow_x2mat(cml_real_t data, MATRIX *m, MATRIX *opt);
 CML_API  void          cml_10_log10_abs(MATRIX *m, MATRIX *opt);
 CML_API  void          cml_20_log10_abs(MATRIX *m, MATRIX *opt);
-CML_API  void          cml_clip(MATRIX *m, cml_sample_t lolim, cml_sample_t hilim, MATRIX *opt);
+CML_API  void          cml_clip(MATRIX *m, cml_real_t lolim, cml_real_t hilim, MATRIX *opt);
 
 
 /*    SIGNAL PROCESSING (ETC)    */
-CML_API  void          __bq_proc(BIQUAD *bq, cml_sample_t *in, cml_sample_t *out, size_t len);
-CML_API  void          __sos_proc(SOS *ss, cml_sample_t *in, cml_sample_t *out, cml_sample_t *scratch, size_t len);
+CML_API  void          __bq_proc(BIQUAD *bq, cml_real_t *in, cml_real_t *out, size_t len);
+CML_API  void          __sos_proc(SOS *ss, cml_real_t *in, cml_real_t *out, cml_real_t *scratch, size_t len);
 CML_API  void          cml_bq_proc(BIQUAD *bq, MATRIX *m, MATRIX *scratch, MATRIX *opt);
 CML_API  void          cml_sos_proc(SOS *ss, MATRIX *m, MATRIX *scratch, MATRIX *opt);
 CML_API  void          cml_sos_multi_proc(SOS_MULTI *sm, MATRIX *m, MATRIX *scratch, MATRIX *opt);
 
 
 /*    OTHER OPERATIONS    */
-CML_API  cml_sample_t  cml_min(MATRIX *m);
-CML_API  cml_sample_t  cml_max(MATRIX *m);
+CML_API  cml_real_t  cml_min(MATRIX *m);
+CML_API  cml_real_t  cml_max(MATRIX *m);
 CML_API  void          cml_min_dim(MATRIX *m, size_t dim, MATRIX *opt);
 CML_API  void          cml_max_dim(MATRIX *m, size_t dim, MATRIX *opt);
 CML_API  bool          cml_is_zero(MATRIX *m);
@@ -247,7 +247,7 @@ CML_API MATRIX* cml_new(size_t rows, size_t cols) {
 
     m->rows = rows;
     m->cols = cols;
-    m->data = (cml_sample_t *) vec_new_cap(sizeof(cml_sample_t), rows * cols);
+    m->data = (cml_real_t *) vec_new_cap(sizeof(cml_real_t), rows * cols);
 
     if (m->data == NULL) {
         free(m);
@@ -358,7 +358,7 @@ CML_API void cml_free(MATRIX *m) {
 }
 
 
-CML_API cml_sample_t cml_get(MATRIX *m, size_t row, size_t col) {
+CML_API cml_real_t cml_get(MATRIX *m, size_t row, size_t col) {
     if (m == NULL || row >= m->rows || col >= m->cols) {
         errno = EINVAL;
         return 0;
@@ -368,7 +368,7 @@ CML_API cml_sample_t cml_get(MATRIX *m, size_t row, size_t col) {
 }
 
 
-CML_API void cml_set(MATRIX *m, size_t row, size_t col, cml_sample_t data) {
+CML_API void cml_set(MATRIX *m, size_t row, size_t col, cml_real_t data) {
     if (m == NULL || row >= m->rows || col >= m->cols) {
         errno = EINVAL;
         return;
@@ -378,7 +378,7 @@ CML_API void cml_set(MATRIX *m, size_t row, size_t col, cml_sample_t data) {
 }
 
 
-CML_API void cml_set_all(MATRIX *m, cml_sample_t data) {
+CML_API void cml_set_all(MATRIX *m, cml_real_t data) {
     if (m == NULL) {
         errno = EINVAL;
         return;
@@ -390,7 +390,7 @@ CML_API void cml_set_all(MATRIX *m, cml_sample_t data) {
 }
 
 
-CML_API void cml_set_row(MATRIX *m, size_t row, cml_sample_t data) {
+CML_API void cml_set_row(MATRIX *m, size_t row, cml_real_t data) {
     if (m == NULL || row >= m->rows) {
         errno = EINVAL;
         return;
@@ -402,7 +402,7 @@ CML_API void cml_set_row(MATRIX *m, size_t row, cml_sample_t data) {
 }
 
 
-CML_API void cml_set_col(MATRIX *m, size_t col, cml_sample_t data) {
+CML_API void cml_set_col(MATRIX *m, size_t col, cml_real_t data) {
     if (m == NULL || col >= m->cols) {
         errno = EINVAL;
         return;
@@ -438,7 +438,7 @@ CML_API void cml_cpy(MATRIX *dest, MATRIX *src) {
 
     int old_errno = errno;
     errno = 0;
-    cml_sample_t *copied_data = (cml_sample_t *) vec_dup(src->data);
+    cml_real_t *copied_data = (cml_real_t *) vec_dup(src->data);
 
     if (errno) {
         return;
@@ -846,7 +846,7 @@ CML_API void cml_adjoin_right(MATRIX *dest, MATRIX *src) {
 }
 
 
-CML_API void cml_add_const(MATRIX *m, cml_sample_t data, MATRIX *opt) {
+CML_API void cml_add_const(MATRIX *m, cml_real_t data, MATRIX *opt) {
     if (m == NULL || m == opt || m->rows == 0) {
         errno = EINVAL;
         return;
@@ -862,7 +862,7 @@ CML_API void cml_add_const(MATRIX *m, cml_sample_t data, MATRIX *opt) {
 }
 
 
-CML_API void cml_mul_const(MATRIX *m, cml_sample_t data, MATRIX *opt) {
+CML_API void cml_mul_const(MATRIX *m, cml_real_t data, MATRIX *opt) {
     if (m == NULL || m == opt || m->rows == 0) {
         errno = EINVAL;
         return;
@@ -928,14 +928,14 @@ CML_API void cml_mul(MATRIX *m1, MATRIX *m2, MATRIX *opt) {
     int m = (int) m1->rows;
     int n = (int) m2->cols;
     int k = (int) m1->cols;
-    cml_sample_t alpha = 1;
-    cml_sample_t beta = 0;
+    cml_real_t alpha = 1;
+    cml_real_t beta = 0;
 
     dgemm_(notrans, notrans, &m, &n, &k, &alpha, m1->data, &m, m2->data, &k, &beta, result->data, &m);
     #else
     for (size_t i = 0; i < m1->rows; ++i) {
         for (size_t j = 0; j < m2->cols; ++j) {
-            cml_sample_t sum = 0;
+            cml_real_t sum = 0;
             for (size_t k = 0; k < m1->cols; ++k) {
                 sum += cml_get(m1, i, k) * cml_get(m2, k, j);
             }
@@ -985,13 +985,13 @@ CML_API void cml_div_elem(MATRIX *m1, MATRIX *m2, MATRIX *opt) {
 }
 
 
-CML_API cml_sample_t cml_sum(MATRIX *m) {
+CML_API cml_real_t cml_sum(MATRIX *m) {
     if (m == NULL || m->rows == 0) {
         errno = EINVAL;
         return 0;
     }
 
-    cml_sample_t sum = 0;
+    cml_real_t sum = 0;
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
             sum += cml_get(m, i, j);
@@ -1010,7 +1010,7 @@ CML_API void cml_sum_dim(MATRIX *m, size_t dim, MATRIX *opt) {
 
     if(0 == dim) {
         for (size_t j = 0; j < m->cols; ++j) {
-            cml_sample_t sum = 0;
+            cml_real_t sum = 0;
             for (size_t i = 0; i < m->rows; ++i) {
                 sum += cml_get(m, i, j);
             }
@@ -1019,7 +1019,7 @@ CML_API void cml_sum_dim(MATRIX *m, size_t dim, MATRIX *opt) {
     }
     else if(1 == dim) {
         for (size_t i = 0; i < m->rows; ++i) {
-            cml_sample_t sum = 0;
+            cml_real_t sum = 0;
             for (size_t j = 0; j < m->cols; ++j) {
                 sum += cml_get(m, i, j);
             }
@@ -1029,7 +1029,7 @@ CML_API void cml_sum_dim(MATRIX *m, size_t dim, MATRIX *opt) {
 }
 
 
-CML_API cml_sample_t cml_mean(MATRIX *m) {
+CML_API cml_real_t cml_mean(MATRIX *m) {
     if (m == NULL || m->rows == 0) {
         errno = EINVAL;
         return 0;
@@ -1047,27 +1047,27 @@ CML_API void cml_mean_dim(MATRIX *m, size_t dim, MATRIX *opt) {
 
     cml_sum_dim(m, dim, opt);
     if(0 == dim) {
-        cml_mul_const(opt, (cml_sample_t)1/(cml_sample_t)m->rows, NULL);
+        cml_mul_const(opt, (cml_real_t)1/(cml_real_t)m->rows, NULL);
     }
     else if(1 == dim) {
-        cml_mul_const(opt, (cml_sample_t)1/(cml_sample_t)m->cols, NULL);
+        cml_mul_const(opt, (cml_real_t)1/(cml_real_t)m->cols, NULL);
     }
 }
 
 
-CML_API cml_sample_t cml_rms(MATRIX *m){
+CML_API cml_real_t cml_rms(MATRIX *m){
     if (m == NULL || m->rows == 0) {
         errno = EINVAL;
         return 0;
     }
 
-    cml_sample_t tmp;
+    cml_real_t tmp;
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
             tmp += cml_sample_square(cml_get(m, i, j));
         }
     }
-    return cml_sample_sqrt(tmp / (cml_sample_t)(m->rows * m->cols));
+    return cml_sample_sqrt(tmp / (cml_real_t)(m->rows * m->cols));
 }
 
 
@@ -1087,14 +1087,14 @@ CML_API void cml_abs(MATRIX *m, MATRIX *opt) {
 
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
-            cml_sample_t tmp = cml_sample_abs(cml_get(m, i, j));
+            cml_real_t tmp = cml_sample_abs(cml_get(m, i, j));
             cml_set(opt, i, j, tmp);
         }
     }
 }
 
 
-CML_API void cml_pow_mat2const(MATRIX *m, cml_sample_t data, MATRIX *opt) {
+CML_API void cml_pow_mat2const(MATRIX *m, cml_real_t data, MATRIX *opt) {
     if (m == NULL || m->rows == 0) {
         errno = EINVAL;
         return;
@@ -1107,14 +1107,14 @@ CML_API void cml_pow_mat2const(MATRIX *m, cml_sample_t data, MATRIX *opt) {
 
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
-            cml_sample_t tmp = cml_sample_pow(cml_get(m, i, j), data);
+            cml_real_t tmp = cml_sample_pow(cml_get(m, i, j), data);
             cml_set(opt, i, j, tmp);
         }
     }
 }
 
 
-CML_API void cml_pow_const2mat(cml_sample_t data, MATRIX *m, MATRIX *opt) {
+CML_API void cml_pow_const2mat(cml_real_t data, MATRIX *m, MATRIX *opt) {
     if (m == NULL || m->rows == 0) {
         errno = EINVAL;
         return;
@@ -1127,7 +1127,7 @@ CML_API void cml_pow_const2mat(cml_sample_t data, MATRIX *m, MATRIX *opt) {
 
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
-            cml_sample_t tmp = cml_sample_pow(data, cml_get(m, i, j));
+            cml_real_t tmp = cml_sample_pow(data, cml_get(m, i, j));
             cml_set(opt, i, j, tmp);
         }
     }
@@ -1147,14 +1147,14 @@ CML_API void cml_log10(MATRIX *m, MATRIX *opt) {
 
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
-            cml_sample_t tmp = cml_sample_log10(cml_get(m, i, j));
+            cml_real_t tmp = cml_sample_log10(cml_get(m, i, j));
             cml_set(opt, i, j, tmp);
         }
     }
 }
 
 
-CML_API void cml_const_log10_abs(MATRIX *m, cml_sample_t data, MATRIX *opt) {
+CML_API void cml_const_log10_abs(MATRIX *m, cml_real_t data, MATRIX *opt) {
     if (m == NULL || m->rows == 0) {
         errno = EINVAL;
         return;
@@ -1167,20 +1167,20 @@ CML_API void cml_const_log10_abs(MATRIX *m, cml_sample_t data, MATRIX *opt) {
 
     cml_abs(m, opt);
     cml_log10(opt, opt);
-    cml_mul_const(opt, (cml_sample_t)data, opt);
+    cml_mul_const(opt, (cml_real_t)data, opt);
 }
 
 
 CML_API void cml_10_log10_abs(MATRIX *m, MATRIX *opt) {
-    cml_const_log10_abs(m, (cml_sample_t)10, opt);
+    cml_const_log10_abs(m, (cml_real_t)10, opt);
 }
 
 CML_API void cml_20_log10_abs(MATRIX *m, MATRIX *opt) {
-    cml_const_log10_abs(m, (cml_sample_t)20, opt);
+    cml_const_log10_abs(m, (cml_real_t)20, opt);
 }
 
 
-CML_API void cml_clip(MATRIX *m, cml_sample_t lolim, cml_sample_t hilim, MATRIX *opt) {
+CML_API void cml_clip(MATRIX *m, cml_real_t lolim, cml_real_t hilim, MATRIX *opt) {
     if (m == NULL || m->rows == 0) {
         errno = EINVAL;
         return;
@@ -1204,13 +1204,13 @@ CML_API void cml_clip(MATRIX *m, cml_sample_t lolim, cml_sample_t hilim, MATRIX 
 }
 
 
-CML_API cml_sample_t cml_min(MATRIX *m) {
+CML_API cml_real_t cml_min(MATRIX *m) {
     if (m == NULL || m->rows == 0) {
         errno = EINVAL;
         return 0;
     }
 
-    cml_sample_t min = cml_get(m, 0, 0);
+    cml_real_t min = cml_get(m, 0, 0);
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
             if (min > cml_get(m, i, j)) {
@@ -1232,7 +1232,7 @@ CML_API void cml_min_dim(MATRIX *m, size_t dim, MATRIX *opt) {
     if(dim==0) { /* min per 0th dimension */
         /* TODO assert size checks */
         for (size_t j = 0; j < m->cols; ++j) {
-            cml_sample_t min = cml_get(m, 0, j);
+            cml_real_t min = cml_get(m, 0, j);
             for (size_t i = 0; i < m->cols; ++i) {
                 if (min > cml_get(m, i, j)) {
                     min = cml_get(m, i, j);
@@ -1244,7 +1244,7 @@ CML_API void cml_min_dim(MATRIX *m, size_t dim, MATRIX *opt) {
     else if(dim==1) { /* min per 0th dimension */
         /* TODO assert size checks */
         for (size_t i = 0; i < m->rows; ++i) {
-            cml_sample_t min = cml_get(m, i, 0);
+            cml_real_t min = cml_get(m, i, 0);
             for (size_t j = 0; j < m->cols; ++j) {
                 if (min > cml_get(m, i, j)) {
                     min = cml_get(m, i, j);
@@ -1257,13 +1257,13 @@ CML_API void cml_min_dim(MATRIX *m, size_t dim, MATRIX *opt) {
 
 
 
-CML_API cml_sample_t cml_max(MATRIX *m) {
+CML_API cml_real_t cml_max(MATRIX *m) {
     if (m == NULL || m->rows == 0) {
         errno = EINVAL;
         return 0;
     }
 
-    cml_sample_t max = cml_get(m, 0, 0);
+    cml_real_t max = cml_get(m, 0, 0);
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
             if (max < cml_get(m, i, j)) {
@@ -1285,7 +1285,7 @@ CML_API void cml_max_dim(MATRIX *m, size_t dim, MATRIX *opt) {
     if(dim==0) { /* max per 0th dimension */
         /* TODO assert size checks */
         for (size_t j = 0; j < m->cols; ++j) {
-            cml_sample_t max = cml_get(m, 0, j);
+            cml_real_t max = cml_get(m, 0, j);
             for (size_t i = 0; i < m->cols; ++i) {
                 if (max < cml_get(m, i, j)) {
                     max = cml_get(m, i, j);
@@ -1297,7 +1297,7 @@ CML_API void cml_max_dim(MATRIX *m, size_t dim, MATRIX *opt) {
     else if(dim==1) { /* max per 0th dimension */
         /* TODO assert size checks */
         for (size_t i = 0; i < m->rows; ++i) {
-            cml_sample_t max = cml_get(m, i, 0);
+            cml_real_t max = cml_get(m, i, 0);
             for (size_t j = 0; j < m->cols; ++j) {
                 if (max < cml_get(m, i, j)) {
                     max = cml_get(m, i, j);
@@ -1417,8 +1417,8 @@ CML_API void cml_normalize(MATRIX *m, MATRIX *opt) {
         cml_cpy(opt, m);
         m = opt;
     }
-    cml_sample_t min = cml_min(m);
-    cml_sample_t max = cml_max(m);
+    cml_real_t min = cml_min(m);
+    cml_real_t max = cml_max(m);
     for (size_t i = 0; i < vec_len(m->data); ++i) {
         m->data[i] = (m->data[i] - min) / (max - min);
     }
@@ -1446,7 +1446,7 @@ CML_API void cml_normalize_dim(MATRIX *m, size_t dim, MATRIX *opt) {
 
     if(0 == dim) {
         for(size_t j=0; j<m->cols; j++) {
-            cml_sample_t min=cml_get(vecmin, j, 0), max=cml_get(vecmax, j, 0);
+            cml_real_t min=cml_get(vecmin, j, 0), max=cml_get(vecmax, j, 0);
             for(size_t i=0; i<m->rows; i++) {
                 cml_set(opt, i, j, (cml_get(m, i, j) - min) / (max - min));
             }
@@ -1454,7 +1454,7 @@ CML_API void cml_normalize_dim(MATRIX *m, size_t dim, MATRIX *opt) {
     }
     else if(1 == dim) {
         for(size_t i=0; i<m->rows; i++) {
-            cml_sample_t min=cml_get(vecmin, i, 0), max=cml_get(vecmax, i, 0);
+            cml_real_t min=cml_get(vecmin, i, 0), max=cml_get(vecmax, i, 0);
             for(size_t j=0; j<m->cols; j++) {
                 cml_set(opt, i, j, (cml_get(m, i, j) - min) / (max - min));
             }
@@ -1467,8 +1467,8 @@ CML_API void cml_normalize_dim(MATRIX *m, size_t dim, MATRIX *opt) {
 }
 
 /*    SIGNAL PROCESSING (ETC)    */
-CML_API void __bq_proc(BIQUAD *bq, cml_sample_t *in, cml_sample_t *out, size_t len) {
-    cml_sample_t d0;
+CML_API void __bq_proc(BIQUAD *bq, cml_real_t *in, cml_real_t *out, size_t len) {
+    cml_real_t d0;
     for (size_t fix=0; fix<len; fix++) {
         d0 =   in[fix]            \
              - bq->coef[3] * bq->w[0] \
@@ -1481,14 +1481,14 @@ CML_API void __bq_proc(BIQUAD *bq, cml_sample_t *in, cml_sample_t *out, size_t l
     }
 }
 
-CML_API void __sos_proc(SOS *ss, cml_sample_t *in, cml_sample_t *out, cml_sample_t *scratch, size_t len) {
+CML_API void __sos_proc(SOS *ss, cml_real_t *in, cml_real_t *out, cml_real_t *scratch, size_t len) {
     bool free_scratch = false;
     size_t bqix, ppix, err;
-    cml_sample_t *buf[2], *src, *dst;
+    cml_real_t *buf[2], *src, *dst;
 
     /* determine if we should malloc a scratch buffer */
     if(NULL == scratch) {
-        scratch = (cml_sample_t *)calloc(len, sizeof(cml_sample_t));
+        scratch = (cml_real_t *)calloc(len, sizeof(cml_real_t));
         free_scratch = true;
     }
 
@@ -1507,7 +1507,7 @@ CML_API void __sos_proc(SOS *ss, cml_sample_t *in, cml_sample_t *out, cml_sample
     /* if necessary, copy the final result in scratch to output */
     if(dst != out && src == out ) {
         // void * memcpy ( void * destination, const void * source, size_t num );
-        memcpy((void *)out, (void *)scratch, len * sizeof(cml_sample_t));
+        memcpy((void *)out, (void *)scratch, len * sizeof(cml_real_t));
     }
 
     /* free scratch if it was allocated in this function */
@@ -1533,8 +1533,8 @@ CML_API void cml0_bq_proc(BIQUAD *bq, MATRIX *m, MATRIX *opt) {
         if(m->cols > 1) {
             cml_set_bq_state_zero(bq);
         }
-        cml_sample_t *in = MATRIX_CHAN2PTR(m, j);
-        cml_sample_t *out = MATRIX_CHAN2PTR(opt, j);
+        cml_real_t *in = MATRIX_CHAN2PTR(m, j);
+        cml_real_t *out = MATRIX_CHAN2PTR(opt, j);
         __bq_proc(bq, in, out, m->rows);
     }
 }
@@ -1564,8 +1564,8 @@ CML_API void cml0_sos_proc(SOS *ss, MATRIX *m, MATRIX *scratch, MATRIX *opt) {
         if(m->cols > 1) {
             cml_set_sos_state_zero(ss);
         }
-        cml_sample_t *in = MATRIX_CHAN2PTR(m, j);
-        cml_sample_t *out = MATRIX_CHAN2PTR(opt, j);
+        cml_real_t *in = MATRIX_CHAN2PTR(m, j);
+        cml_real_t *out = MATRIX_CHAN2PTR(opt, j);
         __sos_proc(ss, in, out, scratch->data, m->rows);
     }
 
@@ -1637,7 +1637,7 @@ CML_API bool cml_inverse(MATRIX *m, MATRIX *opt) {
     int n = (int) m->rows;
     int ipiv[n];
     int lwork = n * n;
-    cml_sample_t work[lwork];
+    cml_real_t work[lwork];
     int info;
     dgetrf_(&n, &n, m->data, &n, ipiv, &info);
     dgetri_(&n, m->data, &n, ipiv, work, &lwork, &info);

@@ -9,8 +9,8 @@ extern "C" {
 #include <math.h>
 
 /*    SAMPLE TYPE    */
-#ifndef cml_sample_t
-#define cml_sample_t float
+#ifndef cml_real_t
+#define cml_real_t float
 #define cml_sample_pow powf
 #define cml_sample_log10 log10f
 #define cml_sample_square(x) (x*x)

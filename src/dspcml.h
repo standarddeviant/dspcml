@@ -52,7 +52,7 @@ extern "C" {
 #endif
 
 
-#include "dspcml_sample_type.h"
+#include "dspcml_element_type.h"
 
 /* ========================================================
  *

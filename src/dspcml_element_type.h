@@ -16,6 +16,8 @@ extern "C" {
 #define cml_real_square(x) (x*x)
 #define cml_real_sqrt sqrtf
 #define cml_real_abs fabsf
+#define cml_real_sin sinf
+#define cml_real_cos sinf
 #endif
 
 #ifdef __cplusplus

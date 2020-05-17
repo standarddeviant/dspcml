@@ -1,5 +1,5 @@
 # DSPCML
-DSPCML is an acronym for Digital Signal Processing C Matrix Library. It is an adaption of the C Matrix Library (CML) library referenced here: https://github.com/MichaelJWelsh/cml
+DSPCML is an acronym for Digital Signal Processing C Matrix Library. It is an adaption of the C Matrix Library (CML) referenced here: https://github.com/MichaelJWelsh/cml
 
 DSPCML aims to add common signal processing functions to the original CML over time. The primary goal is to achieve portability with ability to support optimized signal processing functions for different compilers and toolchains via 'compile-flag'. 
 
@@ -14,10 +14,10 @@ The signal processing function wish-list is maintained below:
 - [x] 20 * LOG10(ABS)
 - [x] ABS
 - [x] CLIP
-- [ ] GT : `>`
-- [ ] GTE: `>=`
-- [ ] LT : `>`
-- [ ] LTE: `>=`
+- [ ] `>`  (GREATER THAN)
+- [ ] `>=` (GREATER THAN OR EQUAL)
+- [ ] `<`  (LESS THAN)
+- [ ] `<=` (LESS THAN OR EQUAL)
 
 #### Per-Dimension (output reduced dims from input)
 - [x] Per-Dimension MAX
@@ -28,7 +28,7 @@ The signal processing function wish-list is maintained below:
 - [ ] Per-Dimension XMEAN (exclusive mean)
 
 #### Per-Dimension-0 (output same columns as input)
-- [ ] Per-Dimension-0 SOS (cascaded biquads)
+- [x] Per-Dimension-0 SOS (cascaded biquads)
 - [ ] Per-Dimension-0 FFT (Real input)
 - [ ] Per-Dimension-0 FFT (Complex input)
 - [ ] Per-Dimension-0 DTFT (Real input)

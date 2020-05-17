@@ -369,6 +369,17 @@ CML_API void cml_elm_real_func1(MATRIX *m, cml_real_func1_t op, cml_real_t r1, M
     }
 }
 
+// reverse call signature order btween m and r1
+CML_API void cml_elm_real_1func(cml_real_t r1, cml_real_func1_t op, MATRIX *m, MATRIX *opt) {
+    /* TODO - checks on m / opt */
+    if(NULL == opt) {
+        opt = m;
+    }
+    for (size_t i = 0; i < vec_len(m->data); ++i) {
+        opt->data[i] = op(r1, m->data[i]);
+    }
+}
+
 
 CML_API void cml_elm_real_func2(MATRIX *m, cml_real_func2_t op, cml_real_t r1, cml_real_t r2, MATRIX *opt) {
     /* TODO - checks on m / opt */
@@ -503,21 +514,25 @@ CML_API void cml_set_col(MATRIX *m, size_t col, cml_real_t data) {
     }
 }
 
+
 CML_API void cml_set_bq_state_zero(BIQUAD *bq) {
     bq->w[0] = 0;
     bq->w[1] = 0;
 }
+
+
 CML_API void cml_set_sos_state_zero(SOS *ss) {
     for(size_t bqix=0; bqix<ss->nb_bq; bqix++) {
         cml_set_bq_state_zero(ss->bqlist + bqix);
     }
 }
+
+
 CML_API void cml_set_sos_multi_state_zero(SOS_MULTI *sm) {
     for(size_t cix=0; cix<sm->nb_ch; cix++) {
         cml_set_sos_state_zero(sm->soslist + cix);
     }
 }
-
 
 
 CML_API void cml_cpy(MATRIX *dest, MATRIX *src) {
@@ -1165,62 +1180,17 @@ CML_API cml_real_t cml_rms(MATRIX *m){
 
 
 CML_API void cml_abs(MATRIX *m, MATRIX *opt) {
-    if (m == NULL || m->rows == 0) {
-        errno = EINVAL;
-        return;
-    }
-    /* TODO assert size checks */
-
-    if (opt == NULL) {
-        opt = m;
-    } 
-
-    for (size_t i = 0; i < m->rows; ++i) {
-        for (size_t j = 0; j < m->cols; ++j) {
-            cml_real_t tmp = cml_real_abs(cml_get(m, i, j));
-            cml_set(opt, i, j, tmp);
-        }
-    }
+    cml_elm_real_func0(m, cml_real_abs, opt);
 }
 
 
-CML_API void cml_pow_mat2const(MATRIX *m, cml_real_t data, MATRIX *opt) {
-    if (m == NULL || m->rows == 0) {
-        errno = EINVAL;
-        return;
-    }
-    /* TODO assert size checks */
-
-    if (opt == NULL) {
-        opt = m;
-    } 
-
-    for (size_t i = 0; i < m->rows; ++i) {
-        for (size_t j = 0; j < m->cols; ++j) {
-            cml_real_t tmp = cml_real_pow(cml_get(m, i, j), data);
-            cml_set(opt, i, j, tmp);
-        }
-    }
+CML_API void cml_pow_mat2const(MATRIX *m, cml_real_t r1, MATRIX *opt) {
+    cml_elm_real_func1(m, cml_real_pow, r1, opt);
 }
 
 
-CML_API void cml_pow_const2mat(cml_real_t data, MATRIX *m, MATRIX *opt) {
-    if (m == NULL || m->rows == 0) {
-        errno = EINVAL;
-        return;
-    }
-    /* TODO assert size checks */
-
-    if (opt == NULL) {
-        opt = m;
-    } 
-
-    for (size_t i = 0; i < m->rows; ++i) {
-        for (size_t j = 0; j < m->cols; ++j) {
-            cml_real_t tmp = cml_real_pow(data, cml_get(m, i, j));
-            cml_set(opt, i, j, tmp);
-        }
-    }
+CML_API void cml_pow_const2mat(cml_real_t r1, MATRIX *m, MATRIX *opt) {
+    cml_elm_real_1func(r1, cml_real_pow, m, opt);
 }
 
 

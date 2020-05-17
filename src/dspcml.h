@@ -95,7 +95,7 @@ CML_API  SOS_MULTI*    cml_sos_multi_new(size_t nb_ch, size_t nb_bq, cml_real_t 
 
 
 /*    GET/SET    */
-CML_API  cml_real_t  cml_get(MATRIX *m, size_t row, size_t col);
+CML_API  cml_real_t    cml_get(MATRIX *m, size_t row, size_t col);
 CML_API  void          cml_set(MATRIX *m, size_t row, size_t col, cml_real_t data);
 CML_API  void          cml_set_all(MATRIX *m, cml_real_t data);
 CML_API  void          cml_set_row(MATRIX *m, size_t row, cml_real_t data);
@@ -146,15 +146,15 @@ CML_API  void          cml_div_elem(MATRIX *m1, MATRIX *m2, MATRIX *opt);
 
 
 /*    SIGNAL PROCESSSING (MATRIX ONLY)   */
-CML_API  cml_real_t  cml_sum(MATRIX *m);
+CML_API  cml_real_t    cml_sum(MATRIX *m);
 CML_API  void          cml_sum_dim(MATRIX *m, size_t dim, MATRIX *opt);
-CML_API  cml_real_t  cml_mean(MATRIX *m);
+CML_API  cml_real_t    cml_mean(MATRIX *m);
 CML_API  void          cml_mean_dim(MATRIX *m, size_t dim, MATRIX *opt);
-CML_API  cml_real_t  cml_rms(MATRIX *m);
+CML_API  cml_real_t    cml_rms(MATRIX *m);
 CML_API  void          cml_rms_dim(MATRIX *m, size_t dim, MATRIX *opt);
 CML_API  void          cml_abs(MATRIX *m, MATRIX *opt);
-CML_API  void          cml_pow_mat2x(MATRIX *m, cml_real_t data, MATRIX *opt);
-CML_API  void          cml_pow_x2mat(cml_real_t data, MATRIX *m, MATRIX *opt);
+CML_API  void          cml_pow_mat2const(MATRIX *m, cml_real_t r1, MATRIX *opt);
+CML_API  void          cml_pow_const2mat(cml_real_t r1, MATRIX *m, MATRIX *opt);
 CML_API  void          cml_10_log10_abs(MATRIX *m, MATRIX *opt);
 CML_API  void          cml_20_log10_abs(MATRIX *m, MATRIX *opt);
 CML_API  void          cml_clip(MATRIX *m, cml_real_t lolim, cml_real_t hilim, MATRIX *opt);
@@ -169,8 +169,8 @@ CML_API  void          cml_sos_multi_proc(SOS_MULTI *sm, MATRIX *m, MATRIX *scra
 
 
 /*    OTHER OPERATIONS    */
-CML_API  cml_real_t  cml_min(MATRIX *m);
-CML_API  cml_real_t  cml_max(MATRIX *m);
+CML_API  cml_real_t    cml_min(MATRIX *m);
+CML_API  cml_real_t    cml_max(MATRIX *m);
 CML_API  void          cml_min_dim(MATRIX *m, size_t dim, MATRIX *opt);
 CML_API  void          cml_max_dim(MATRIX *m, size_t dim, MATRIX *opt);
 CML_API  bool          cml_is_zero(MATRIX *m);
@@ -1166,13 +1166,13 @@ CML_API cml_real_t cml_rms(MATRIX *m){
         return 0;
     }
 
-    cml_real_t tmp;
+    cml_real_accum_t tmp;
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
-            tmp += cml_real_square(cml_get(m, i, j));
+            tmp += (cml_real_accum_t)cml_real_square(cml_get(m, i, j));
         }
     }
-    return cml_real_sqrt(tmp / (cml_real_t)(m->rows * m->cols));
+    return cml_real_sqrt((cml_real_t)(tmp / (cml_real_accum_t)(m->rows * m->cols)));
 }
 
 

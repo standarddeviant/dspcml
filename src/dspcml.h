@@ -348,27 +348,48 @@ CML_API MATRIX* cml_upper_tri(size_t dim) {
 }
 
 
-CML_API void cml_elm_real_op(MATRIX *m, cml_real_func_t op, MATRIX *opt) {
+CML_API void cml_elm_real_func0(MATRIX *m, cml_real_func0_t op, MATRIX *opt) {
     /* TODO - checks on m / opt */
     if(NULL == opt) {
         opt = m;
     }
-
     for (size_t i = 0; i < vec_len(m->data); ++i) {
         opt->data[i] = op(m->data[i]);
     }
 }
 
 
+CML_API void cml_elm_real_func1(MATRIX *m, cml_real_func1_t op, cml_real_t r1, MATRIX *opt) {
+    /* TODO - checks on m / opt */
+    if(NULL == opt) {
+        opt = m;
+    }
+    for (size_t i = 0; i < vec_len(m->data); ++i) {
+        opt->data[i] = op(m->data[i], r1);
+    }
+}
+
+
+CML_API void cml_elm_real_func2(MATRIX *m, cml_real_func2_t op, cml_real_t r1, cml_real_t r2, MATRIX *opt) {
+    /* TODO - checks on m / opt */
+    if(NULL == opt) {
+        opt = m;
+    }
+    for (size_t i = 0; i < vec_len(m->data); ++i) {
+        opt->data[i] = op(m->data[i], r1, r2);
+    }
+}
+
+
 CML_API void cml_cos(MATRIX *m, MATRIX *opt) {
     /* TODO - checks on m / opt */
-    cml_elm_real_op(m, cml_real_cos, opt);
+    cml_elm_real_func0(m, cml_real_cos, opt);
 }
 
 
 CML_API void cml_sin(MATRIX *m, MATRIX *opt) {
     /* TODO - checks on m / opt */
-    cml_elm_real_op(m, cml_real_sin, opt);
+    cml_elm_real_func0(m, cml_real_sin, opt);
 }
 
 
@@ -1204,72 +1225,22 @@ CML_API void cml_pow_const2mat(cml_real_t data, MATRIX *m, MATRIX *opt) {
 
 
 CML_API void cml_log10(MATRIX *m, MATRIX *opt) {
-    if (m == NULL || m->rows == 0) {
-        errno = EINVAL;
-        return;
-    }
-    /* TODO assert size checks */
-
-    if (opt == NULL) {
-        opt = m;
-    } 
-
-    for (size_t i = 0; i < m->rows; ++i) {
-        for (size_t j = 0; j < m->cols; ++j) {
-            cml_real_t tmp = cml_real_log10(cml_get(m, i, j));
-            cml_set(opt, i, j, tmp);
-        }
-    }
-}
-
-
-CML_API void cml_const_log10_abs(MATRIX *m, cml_real_t data, MATRIX *opt) {
-    if (m == NULL || m->rows == 0) {
-        errno = EINVAL;
-        return;
-    }
-    /* TODO assert size checks */
-
-    if (opt == NULL) {
-        opt = m;
-    }
-
-    cml_abs(m, opt);
-    cml_log10(opt, opt);
-    cml_mul_const(opt, (cml_real_t)data, opt);
+    cml_elm_real_func0(m, cml_real_log10, opt);
 }
 
 
 CML_API void cml_10_log10_abs(MATRIX *m, MATRIX *opt) {
-    cml_const_log10_abs(m, (cml_real_t)10, opt);
+    cml_elm_real_func0(m, cml_real_10log10abs, opt);
 }
 
+
 CML_API void cml_20_log10_abs(MATRIX *m, MATRIX *opt) {
-    cml_const_log10_abs(m, (cml_real_t)20, opt);
+    cml_elm_real_func0(m, cml_real_20log10abs, opt);
 }
 
 
 CML_API void cml_clip(MATRIX *m, cml_real_t lolim, cml_real_t hilim, MATRIX *opt) {
-    if (m == NULL || m->rows == 0) {
-        errno = EINVAL;
-        return;
-    }
-    /* TODO assert size checks */
-
-    if (opt == NULL) {
-        opt = m;
-    } 
-
-    for (size_t i = 0; i < m->rows; ++i) {
-        for (size_t j = 0; j < m->cols; ++j) {
-            if(cml_get(m, i, j) < lolim) {
-                cml_set(m, i, j, lolim);
-            }
-            else if(cml_get(m, i, j) > hilim) {
-                cml_set(m, i, j, hilim);
-            }
-        }
-    }
+    cml_elm_real_func2(m, cml_real_clip, lolim, hilim, opt);
 }
 
 

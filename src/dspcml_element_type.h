@@ -11,6 +11,7 @@ extern "C" {
 /*    SAMPLE TYPES    */
 #ifndef cml_real_t
 #define cml_real_t float
+typedef cml_real_t (*cml_real_func_t)(cml_real_t);
 #define cml_real_pow powf
 #define cml_real_log10 log10f
 #define cml_real_square(x) (x*x)

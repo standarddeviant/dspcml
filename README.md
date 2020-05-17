@@ -5,6 +5,7 @@ DSPCML aims to add common signal processing functions to the original CML over t
 
 ## Notable changes from CML to DSPCML
 * The elementary data type of CML was `double`. In DSPCML this is changed to `cml_real_t` with the default as `float`. This type alias, along with per-sample math functions, is defined `cml_real_type.h`
+* Some new functions use the prefix `cml0` instead of just `cml`. These functions are explicitly designed to do work along dimension 0, typically as 'channels' of 'samples' in the context of signal processing. This fuzzy distinction is where DSP meets CML.
 
 ## Signal Processing Function Wishlist
 DSPCML aims to be a strict superset of the functions in CML.
@@ -18,21 +19,26 @@ The signal processing function wish-list is maintained below:
 - [ ] `>=` (GREATER THAN OR EQUAL)
 - [ ] `<`  (LESS THAN)
 - [ ] `<=` (LESS THAN OR EQUAL)
+- [x] SIN
+- [x] COS
 
 #### Per-Dimension (output reduced dims from input)
-- [x] Per-Dimension MAX
-- [x] Per-Dimension MEAN
-- [x] Per-Dimension MIN
-- [x] Per-Dimension RMS
-- [x] Per-Dimension SUM
-- [ ] Per-Dimension XMEAN (exclusive mean)
+- [x] MAX
+- [x] MEAN
+- [x] MIN
+- [x] RMS
+- [x] SUM
+- [ ] XMEAN (exclusive mean)
 
 #### Per-Dimension-0 (output same columns as input)
-- [x] Per-Dimension-0 SOS (cascaded biquads)
-- [ ] Per-Dimension-0 FFT (Real input)
-- [ ] Per-Dimension-0 FFT (Complex input)
-- [ ] Per-Dimension-0 DTFT (Real input)
-- [ ] Per-Dimension-0 DTFT (Complex input)
+- [x] GENERATE LIN
+- [x] GENERATE SIN
+- [x] GENERATE COS
+- [x] SOS (cascaded biquads)
+- [ ] FFT (Real input)
+- [ ] FFT (Complex input)
+- [ ] DTFT (Real input)
+- [ ] DTFT (Complex input)
 
 
 ## Optimized Function Wishtable

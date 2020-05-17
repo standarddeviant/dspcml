@@ -348,6 +348,75 @@ CML_API MATRIX* cml_upper_tri(size_t dim) {
 }
 
 
+CML_API void cml_elm_real_op(MATRIX *m, cml_real_func_t op, MATRIX *opt) {
+    /* TODO - checks on m / opt */
+    if(NULL == opt) {
+        opt = m;
+    }
+
+    for (size_t i = 0; i < vec_len(m->data); ++i) {
+        opt->data[i] = op(m->data[i]);
+    }
+}
+
+
+CML_API void cml_cos(MATRIX *m, MATRIX *opt) {
+    /* TODO - checks on m / opt */
+    cml_elm_real_op(m, cml_real_cos, opt);
+}
+
+
+CML_API void cml_sin(MATRIX *m, MATRIX *opt) {
+    /* TODO - checks on m / opt */
+    cml_elm_real_op(m, cml_real_sin, opt);
+}
+
+
+/* linear generator */
+CML_API MATRIX* cml0_gen_lin(size_t rows, size_t cols, cml_real_t incr, MATRIX *starts) {
+    bool free_starts = false;
+    MATRIX *m = cml_new(rows, cols);
+
+    if(NULL == m) {
+        return m;
+    }
+
+    if(NULL == starts) {
+        starts = cml_new(cols, 1);
+    }
+
+    for (size_t j=0; j<cols; ++j) {
+        cml_real_t val = cml_get(starts, j, 0);
+        for (size_t i = 0; i < rows; ++i) {
+            cml_set(m, i, j, val);
+            val += incr;
+        }
+    }
+
+    if(free_starts) {
+        cml_free(starts);
+    }
+
+    return m;
+}
+
+
+CML_API MATRIX* cml0_gen_cos(size_t rows, size_t cols, cml_real_t phase_incr, MATRIX *phase_starts) {
+    /* create matrix of phases values */
+    MATRIX *m = cml0_gen_lin(rows, cols, phase_incr, phase_starts);
+    cml_cos(m, NULL); /* cos of phases in-place */
+    return m;
+}
+
+
+CML_API MATRIX* cml0_gen_sin(size_t rows, size_t cols, cml_real_t phase_incr, MATRIX *phase_starts) {
+    /* create matrix of phases values */
+    MATRIX *m = cml0_gen_lin(rows, cols, phase_incr, phase_starts);
+    cml_sin(m, NULL); /* sin of phases in-place */
+    return m;
+}
+
+
 CML_API void cml_free(MATRIX *m) {
     if (m == NULL) {
         return;

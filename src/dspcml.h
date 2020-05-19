@@ -66,20 +66,14 @@ typedef struct {
 #define MATRIX_COL2PTR(o, cix) ( (cml_real_t *)&(o->data[cix*o->rows]) )
 #define MATRIX_CHAN2PTR(o, cix) ( (cml_real_t *)&(o->data[cix*o->rows]) )
 
-typedef struct BIQUAD {
-    cml_real_t coef[5];
-    cml_real_t w[2];
-} BIQUAD;
 
-typedef struct SOS {
-    size_t nb_bq;
-    BIQUAD *bqlist;
-} SOS;
+/*    MATRIX SIZE CHECK MACROS    */
+#define _DIM(m,d) (0 == d ? m->rows : m->cols)
+#define SAME_DIM_SZ(m1,d1,m2,d2) (_DIM(m1,d1) == _DIM(m2,d2))
+#define DIFF_DIM_SZ(m1,d1,m2,d2) (_DIM(m1,d1) != _DIM(m2,d2))
+#define SAME_DIMS(m1,m2) ( (_DIM(m1,0) == _DIM(m2,0)) && (_DIM(m1,1) == _DIM(m2,1)) )
+#define DIFF_DIMS(m1,m2) ( (_DIM(m1,0) != _DIM(m2,0)) || (_DIM(m1,1) != _DIM(m2,1)) ) 
 
-typedef struct SOS_MULTI {
-    size_t nb_ch;
-    SOS *soslist;
-} SOS_MULTI;
 
 /*    ALLOCATION    */
 CML_API  MATRIX*       cml_new(size_t rows, size_t cols);
@@ -89,9 +83,7 @@ CML_API  MATRIX*       cml_identity(size_t dim);
 CML_API  MATRIX*       cml_lower_tri(size_t dim);
 CML_API  MATRIX*       cml_upper_tri(size_t dim);
 CML_API  void          cml_free(MATRIX *m);
-CML_API  BIQUAD*       cml_biquad_new(cml_real_t *coeffs);
-CML_API  SOS*          cml_sos_new(size_t nb_bq, cml_real_t *coeffs);
-CML_API  SOS_MULTI*    cml_sos_multi_new(size_t nb_ch, size_t nb_bq, cml_real_t *coeffs);
+CML_API  MATRIX*       cml_new_sos(size_t nb_bq, size_t nb_ch, cml_real_t *coeffs);
 
 
 /*    GET/SET    */
@@ -100,11 +92,7 @@ CML_API  void          cml_set(MATRIX *m, size_t row, size_t col, cml_real_t dat
 CML_API  void          cml_set_all(MATRIX *m, cml_real_t data);
 CML_API  void          cml_set_row(MATRIX *m, size_t row, cml_real_t data);
 CML_API  void          cml_set_col(MATRIX *m, size_t col, cml_real_t data);
-CML_API  void          cml_set_bq_coeffs(BIQUAD *bq, cml_real_t *coeffs);
-CML_API  void          cml_set_sos_coeffs(BIQUAD *bq, cml_real_t *coeffs);
-CML_API  void          cml_set_bq_state_zero(BIQUAD *bq);
-CML_API  void          cml_set_sos_state_zero(SOS *ss);
-CML_API  void          cml_set_sos_multi_state_zero(SOS_MULTI *sm);
+CML_API  void          cml_set_sos_coeffs_all(MATRIX *sos, cml_real_t *coeffs);
 
 
 /*    PHYSICAL MANIPULATION    */
@@ -161,11 +149,7 @@ CML_API  void          cml_clip(MATRIX *m, cml_real_t lolim, cml_real_t hilim, M
 
 
 /*    SIGNAL PROCESSING (ETC)    */
-CML_API  void          __bq_proc(BIQUAD *bq, cml_real_t *in, cml_real_t *out, size_t len);
-CML_API  void          __sos_proc(SOS *ss, cml_real_t *in, cml_real_t *out, cml_real_t *scratch, size_t len);
-CML_API  void          cml_bq_proc(BIQUAD *bq, MATRIX *m, MATRIX *scratch, MATRIX *opt);
-CML_API  void          cml_sos_proc(SOS *ss, MATRIX *m, MATRIX *scratch, MATRIX *opt);
-CML_API  void          cml_sos_multi_proc(SOS_MULTI *sm, MATRIX *m, MATRIX *scratch, MATRIX *opt);
+CML_API  void          cml_sos_proc(MATRIX *sos, MATRIX *m, MATRIX *scratch, MATRIX *opt);
 
 
 /*    OTHER OPERATIONS    */
@@ -348,6 +332,7 @@ CML_API MATRIX* cml_upper_tri(size_t dim) {
 }
 
 
+/* execute scalar function on each element with no arguments per element */
 CML_API void cml_elm_real_func0(MATRIX *m, cml_real_func0_t op, MATRIX *opt) {
     /* TODO - checks on m / opt */
     if(NULL == opt) {
@@ -359,6 +344,7 @@ CML_API void cml_elm_real_func0(MATRIX *m, cml_real_func0_t op, MATRIX *opt) {
 }
 
 
+/* execute scalar function on each element with 1 argument per element */
 CML_API void cml_elm_real_func1(MATRIX *m, cml_real_func1_t op, cml_real_t r1, MATRIX *opt) {
     /* TODO - checks on m / opt */
     if(NULL == opt) {
@@ -369,7 +355,8 @@ CML_API void cml_elm_real_func1(MATRIX *m, cml_real_func1_t op, cml_real_t r1, M
     }
 }
 
-// reverse call signature order btween m and r1
+
+/* reverse call signature order btween m and r1 compared to cml_elm_real_func1 */
 CML_API void cml_elm_real_1func(cml_real_t r1, cml_real_func1_t op, MATRIX *m, MATRIX *opt) {
     /* TODO - checks on m / opt */
     if(NULL == opt) {
@@ -381,6 +368,7 @@ CML_API void cml_elm_real_1func(cml_real_t r1, cml_real_func1_t op, MATRIX *m, M
 }
 
 
+/* execute scalar function on each element with 2 argument per element */
 CML_API void cml_elm_real_func2(MATRIX *m, cml_real_func2_t op, cml_real_t r1, cml_real_t r2, MATRIX *opt) {
     /* TODO - checks on m / opt */
     if(NULL == opt) {
@@ -446,6 +434,34 @@ CML_API MATRIX* cml0_gen_sin(size_t rows, size_t cols, cml_real_t phase_incr, MA
     MATRIX *m = cml0_gen_lin(rows, cols, phase_incr, phase_starts);
     cml_sin(m, NULL); /* sin of phases in-place */
     return m;
+}
+
+
+/* multi-channel SOS filter format that stores the coefficients with the state 
+   'back-to-back' and per-channel. This leverages the cml MATRIX to store
+   multi-channel SOS or 'cascaded biqauds' data in one place and support
+   multi-channel filtering with no data types. A matrix of this format could
+   be constructed directly and manually */
+CML_API MATRIX* cml_new_sos(size_t nb_bq, size_t nb_ch, cml_real_t *coeffs) {
+    MATRIX *sos = cml_new(7*nb_bq, nb_ch);
+    if (sos == NULL) {
+        return NULL;
+    }
+
+    for (size_t ch = 0; ch < nb_ch; ++ch) {
+        for (size_t bq = 0; bq < nb_bq; ++bq) {
+            cml_real_t *bq_coef = coeffs + 6 + (bq + (ch * nb_bq));
+            cml_set(sos, 7*bq + 0, ch, *(bq_coef + 0)); /* b0 */
+            cml_set(sos, 7*bq + 1, ch, *(bq_coef + 1)); /* b1 */
+            cml_set(sos, 7*bq + 2, ch, *(bq_coef + 2)); /* b2 */
+            cml_set(sos, 7*bq + 3, ch, *(bq_coef + 4)); /* a1 */
+            cml_set(sos, 7*bq + 4, ch, *(bq_coef + 5)); /* a2 */
+            cml_set(sos, 7*bq + 5, ch, 0);              /* w0 */
+            cml_set(sos, 7*bq + 6, ch, 0);              /* w1 */
+        }
+    }
+
+    return sos;
 }
 
 
@@ -515,22 +531,14 @@ CML_API void cml_set_col(MATRIX *m, size_t col, cml_real_t data) {
 }
 
 
-CML_API void cml_set_bq_state_zero(BIQUAD *bq) {
-    bq->w[0] = 0;
-    bq->w[1] = 0;
-}
-
-
-CML_API void cml_set_sos_state_zero(SOS *ss) {
-    for(size_t bqix=0; bqix<ss->nb_bq; bqix++) {
-        cml_set_bq_state_zero(ss->bqlist + bqix);
-    }
-}
-
-
-CML_API void cml_set_sos_multi_state_zero(SOS_MULTI *sm) {
-    for(size_t cix=0; cix<sm->nb_ch; cix++) {
-        cml_set_sos_state_zero(sm->soslist + cix);
+CML_API void cml_set_sos_state_zero(MATRIX *sos) {
+    for (size_t ch = 0; ch < sos->cols; ++ch) {
+        size_t row = 0;
+        while(row < sos->rows) {
+            row += 5;
+            cml_set(sos, row++, ch, 0); /* w0 */
+            cml_set(sos, row++, ch, 0); /* w1 */
+        }
     }
 }
 
@@ -1111,7 +1119,7 @@ CML_API void cml_sum_dim(MATRIX *m, size_t dim, MATRIX *opt) {
         errno = EINVAL;
         return;
     }
-    /* TODO assert size checks */
+    /* TODO assert (or errno) size checks */
 
     if(0 == dim) {
         for (size_t j = 0; j < m->cols; ++j) {
@@ -1148,7 +1156,7 @@ CML_API void cml_mean_dim(MATRIX *m, size_t dim, MATRIX *opt) {
         errno = EINVAL;
         return;
     }
-    /* TODO assert size checks */
+    /* TODO assert (or errno) size checks */
 
     cml_sum_dim(m, dim, opt);
     if(0 == dim) {
@@ -1240,7 +1248,7 @@ CML_API void cml_min_dim(MATRIX *m, size_t dim, MATRIX *opt) {
     }
 
     if(dim==0) { /* min per 0th dimension */
-        /* TODO assert size checks */
+        /* TODO assert (or errno) size checks */
         for (size_t j = 0; j < m->cols; ++j) {
             cml_real_t min = cml_get(m, 0, j);
             for (size_t i = 0; i < m->cols; ++i) {
@@ -1252,7 +1260,7 @@ CML_API void cml_min_dim(MATRIX *m, size_t dim, MATRIX *opt) {
         }
     }
     else if(dim==1) { /* min per 0th dimension */
-        /* TODO assert size checks */
+        /* TODO assert (or errno) size checks */
         for (size_t i = 0; i < m->rows; ++i) {
             cml_real_t min = cml_get(m, i, 0);
             for (size_t j = 0; j < m->cols; ++j) {
@@ -1293,7 +1301,7 @@ CML_API void cml_max_dim(MATRIX *m, size_t dim, MATRIX *opt) {
     }
 
     if(dim==0) { /* max per 0th dimension */
-        /* TODO assert size checks */
+        /* TODO assert (or errno) size checks */
         for (size_t j = 0; j < m->cols; ++j) {
             cml_real_t max = cml_get(m, 0, j);
             for (size_t i = 0; i < m->cols; ++i) {
@@ -1305,7 +1313,7 @@ CML_API void cml_max_dim(MATRIX *m, size_t dim, MATRIX *opt) {
         }
     }
     else if(dim==1) { /* max per 0th dimension */
-        /* TODO assert size checks */
+        /* TODO assert (or errno) size checks */
         for (size_t i = 0; i < m->rows; ++i) {
             cml_real_t max = cml_get(m, i, 0);
             for (size_t j = 0; j < m->cols; ++j) {
@@ -1442,7 +1450,7 @@ CML_API void cml_normalize_dim(MATRIX *m, size_t dim, MATRIX *opt) {
     }
 
     size_t mmlen = dim ? m->rows : m->cols;
-    /* TODO assert dim sizes */
+    /* TODO assert (or errno) dim sizes */
     MATRIX *vecmin = cml_new(mmlen, 1);
     MATRIX *vecmax = cml_new(mmlen, 1);
 
@@ -1477,23 +1485,24 @@ CML_API void cml_normalize_dim(MATRIX *m, size_t dim, MATRIX *opt) {
 }
 
 /*    SIGNAL PROCESSING (ETC)    */
-CML_API void __bq_proc(BIQUAD *bq, cml_real_t *in, cml_real_t *out, size_t len) {
+CML_API void __biquad_proc(cml_real_t *bq, cml_real_t *in, cml_real_t *out, size_t len) {
     cml_real_t d0;
+    cml_real_t *w = bq + 5;
     for (size_t fix=0; fix<len; fix++) {
-        d0 =   in[fix]            \
-             - bq->coef[3] * bq->w[0] \
-             - bq->coef[4] * bq->w[1] ;
-        out[fix] =   bq->coef[0] *       d0 \
-                   + bq->coef[1] * bq->w[0] \
-                   + bq->coef[2] * bq->w[1] ;
-        bq->w[1] = bq->w[0];
-        bq->w[0] = d0;
+        d0 =   in[fix]        \
+             - bq[3] * w[0] \
+             - bq[4] * w[1] ;
+        out[fix] =   bq[0] *   d0 \
+                   + bq[1] * w[0] \
+                   + bq[2] * w[1] ;
+        w[1] = w[0];
+        w[0] = d0;
     }
 }
 
-CML_API void __sos_proc(SOS *ss, cml_real_t *in, cml_real_t *out, cml_real_t *scratch, size_t len) {
+CML_API void __sos_proc(cml_real_t *sos, size_t nb_bq, cml_real_t *in, size_t len, cml_real_t *out, cml_real_t *scratch) {
     bool free_scratch = false;
-    size_t bqix, ppix, err;
+    size_t ppix, err;
     cml_real_t *buf[2], *src, *dst;
 
     /* determine if we should malloc a scratch buffer */
@@ -1508,8 +1517,9 @@ CML_API void __sos_proc(SOS *ss, cml_real_t *in, cml_real_t *out, cml_real_t *sc
 
     /* run biquads[0] from input to output */
     src=in; dst=out;
-    for(bqix=0; bqix<ss->nb_bq; bqix++){
-        __bq_proc(ss->bqlist + bqix, src, dst, len);
+
+    for (size_t bqix = 0; bqix < nb_bq; ++bqix) {
+        __biquad_proc(sos + (7*bqix), src, dst, len);
         src=buf[ppix&1]; dst=buf[(ppix+1)&1];
         ppix++;
     }
@@ -1527,87 +1537,38 @@ CML_API void __sos_proc(SOS *ss, cml_real_t *in, cml_real_t *out, cml_real_t *sc
 }
 
 
-CML_API void cml0_bq_proc(BIQUAD *bq, MATRIX *m, MATRIX *opt) {
-    if (m == NULL || m == opt || m->rows == 0) {
-        errno = EINVAL;
-        return;
-    }
-    /* TODO assert dim sizes */
-
-    if(opt == NULL) {
-        opt = m;
-    }
-
-    for(size_t j=0; j<m->cols; j++) {
-        /* zero bq state if m is 'multi-channel' */
-        if(m->cols > 1) {
-            cml_set_bq_state_zero(bq);
-        }
-        cml_real_t *in = MATRIX_CHAN2PTR(m, j);
-        cml_real_t *out = MATRIX_CHAN2PTR(opt, j);
-        __bq_proc(bq, in, out, m->rows);
-    }
-}
-
-
-CML_API void cml0_sos_proc(SOS *ss, MATRIX *m, MATRIX *scratch, MATRIX *opt) {
+CML_API void cml0_sos_proc(MATRIX *sos, MATRIX *m, MATRIX *scratch, MATRIX *opt) {
     bool free_scratch = false;
-    if (m == NULL || m == opt || m->rows == 0) {
+    if (sos == NULL || m == NULL || m->rows == 0) {
         errno = EINVAL;
         return;
     }
-    /* TODO assert dim sizes */
+    /* TODO assert (or errno) dim sizes */
 
     if(NULL == scratch) {
         scratch = cml_new(m->rows, 1);
         free_scratch = true;
     }
 
-
     if(opt == NULL) {
         opt = m;
     }
 
+    size_t nb_bq = sos->rows / 7;
     /* loop over columns */
     for(size_t j=0; j<m->cols; j++) {
-        /* zero bq state if m is 'multi-channel' */
-        if(m->cols > 1) {
-            cml_set_sos_state_zero(ss);
-        }
-        cml_real_t *in = MATRIX_CHAN2PTR(m, j);
-        cml_real_t *out = MATRIX_CHAN2PTR(opt, j);
-        __sos_proc(ss, in, out, scratch->data, m->rows);
-    }
-
-    if(free_scratch) {
-        cml_free(scratch);
-    }
-}
-
-CML_API void cml0_sos_multi_proc(SOS_MULTI *sm, MATRIX *m, MATRIX *scratch, MATRIX *opt) {
-    bool free_scratch = false;
-    if (m == NULL || m == opt || m->rows == 0) {
-        errno = EINVAL;
-        return;
-    }
-    /* TODO assert dim sizes */
-
-    if(NULL == scratch) {
-        scratch = cml_new(m->rows, 1);
-        free_scratch = true;
-    }
-
-    if(opt == NULL) {
-        opt = m;
-    }
-
-    for(size_t j=0; j<opt->cols; j++) {
+        /* TODO - figure out src_ch and dst_ch logic */
+        /* TODO - figure out src_ch and dst_ch logic */
+        /* TODO - figure out src_ch and dst_ch logic */
+        /* TODO - figure out src_ch and dst_ch logic */
+        /* TODO - figure out src_ch and dst_ch logic */
+        /* TODO - figure out src_ch and dst_ch logic */
+        /* TODO - figure out src_ch and dst_ch logic */
         __sos_proc(
-            (sm->soslist + j),
-            MATRIX_CHAN2PTR(m, 0),
-            MATRIX_CHAN2PTR(opt, 0),
-            MATRIX_CHAN2PTR(scratch, 0),
-            m->rows
+            MATRIX_CHAN2PTR(sos, j), nb_bq,
+            MATRIX_CHAN2PTR(m, j), m->rows,
+            scratch->data,
+            MATRIX_CHAN2PTR(opt, j)
         );
     }
 

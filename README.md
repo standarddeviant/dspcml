@@ -15,10 +15,10 @@ The signal processing function wish-list is maintained below:
 - [x] 20 * LOG10(ABS)
 - [x] ABS
 - [x] CLIP
-- [ ] `>`  (GREATER THAN)
-- [ ] `>=` (GREATER THAN OR EQUAL)
-- [ ] `<`  (LESS THAN)
-- [ ] `<=` (LESS THAN OR EQUAL)
+- [x] `>`  (GREATER THAN)
+- [x] `>=` (GREATER THAN OR EQUAL)
+- [x] `<`  (LESS THAN)
+- [x] `<=` (LESS THAN OR EQUAL)
 - [x] SIN
 - [x] COS
 

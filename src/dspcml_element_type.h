@@ -54,6 +54,13 @@ typedef struct cml_cpx_t {
 cml_real_t cml_real_10log10abs(cml_real_t x);
 cml_real_t cml_real_20log10abs(cml_real_t x);
 cml_real_t cml_real_clip(cml_real_t x, cml_real_t lolim, cml_real_t hilim);
+cml_real_t cml_real_gt(cml_real_t x, cml_real_t thresh);
+cml_real_t cml_real_gte(cml_real_t x, cml_real_t thresh);
+cml_real_t cml_real_lt(cml_real_t x, cml_real_t thresh);
+cml_real_t cml_real_lte(cml_real_t x, cml_real_t thresh);
+
+
+/* COMPLEX SAMPLE FUNCTION */
 cml_real_t cml_cpx_abs(cml_cpx_t x);
 
 
@@ -66,6 +73,18 @@ cml_real_t cml_real_20log10abs(cml_real_t x){
 }
 cml_real_t cml_real_clip(cml_real_t x, cml_real_t lolim, cml_real_t hilim) {
     return (x < lolim) ? lolim : ((x > hilim) ? hilim : x);
+}
+cml_real_t cml_real_gt(cml_real_t x, cml_real_t thresh){
+    return (x > thresh) ? 1 : 0;
+}
+cml_real_t cml_real_gte(cml_real_t x, cml_real_t thresh){
+    return (x >= thresh) ? 1 : 0;
+}
+cml_real_t cml_real_lt(cml_real_t x, cml_real_t thresh){
+    return (x < thresh) ? 1 : 0;
+}
+cml_real_t cml_real_lte(cml_real_t x, cml_real_t thresh){
+    return (x <= thresh) ? 1 : 0;
 }
 #endif
 

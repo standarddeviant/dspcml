@@ -1257,6 +1257,26 @@ CML_API void cml_clip(MATRIX *m, cml_real_t lolim, cml_real_t hilim, MATRIX *opt
 }
 
 
+CML_API void cml_gt(MATRIX *m, cml_real_t r1, MATRIX *opt) {
+    cml_elm_real_func1(m, cml_real_gt, r1, opt);
+}
+
+
+CML_API void cml_gte(MATRIX *m, cml_real_t r1, MATRIX *opt) {
+    cml_elm_real_func1(m, cml_real_gte, r1, opt);
+}
+
+
+CML_API void cml_lt(MATRIX *m, cml_real_t r1, MATRIX *opt) {
+    cml_elm_real_func1(m, cml_real_lt, r1, opt);
+}
+
+
+CML_API void cml_lte(MATRIX *m, cml_real_t r1, MATRIX *opt) {
+    cml_elm_real_func1(m, cml_real_lte, r1, opt);
+}
+
+
 CML_API cml_real_t cml_min(MATRIX *m) {
     if (m == NULL || m->rows == 0) {
         errno = EINVAL;

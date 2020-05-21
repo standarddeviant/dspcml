@@ -63,16 +63,23 @@ typedef struct {
     size_t rows, cols;
     cml_real_t *data;
 } MATRIX;
-#define MATRIX_COL2PTR(o, cix) ( (cml_real_t *)&(o->data[cix*o->rows]) )
-#define MATRIX_CHAN2PTR(o, cix) ( (cml_real_t *)&(o->data[cix*o->rows]) )
+typedef struct ZMATRIX {
+    size_t rows, cols;
+    cml_cpx_t *data;
+} ZMATRIX;
+#define MATRIX_COL2PTR(m, cix) ( (cml_real_t *)&(m->data[cix*m->rows]) )
+#define MATRIX_CHAN2PTR(m, cix) ( (cml_real_t *)&(m->data[cix*m->rows]) )
+#define MATRIX_ALL_CH (SIZE_MAX) /* like the colon operator in NumPy */
+/* stride length to iterate across a certain dim */
+#define MATRIX_STRIDE_DIM(m, d) ( 0==d ? 1 : m->rows )
 
 
 /*    MATRIX SIZE CHECK MACROS    */
-#define _DIM(m,d) (0 == d ? m->rows : m->cols)
-#define SAME_DIM_SZ(m1,d1,m2,d2) (_DIM(m1,d1) == _DIM(m2,d2))
-#define DIFF_DIM_SZ(m1,d1,m2,d2) (_DIM(m1,d1) != _DIM(m2,d2))
-#define SAME_DIMS(m1,m2) ( (_DIM(m1,0) == _DIM(m2,0)) && (_DIM(m1,1) == _DIM(m2,1)) )
-#define DIFF_DIMS(m1,m2) ( (_DIM(m1,0) != _DIM(m2,0)) || (_DIM(m1,1) != _DIM(m2,1)) ) 
+#define DIMSZ(m, d) (0 == d ? m->rows : m->cols)
+#define SAME_DIM_SZ(m1, d1, m2, d2) (DIMSZ(m1,d1) == DIMSZ(m2,d2))
+#define DIFF_DIM_SZ(m1, d1, m2, d2) (DIMSZ(m1,d1) != DIMSZ(m2,d2))
+#define SAME_DIMS(m1, m2) ((DIMSZ(m1, 0) == DIMSZ(m2, 0)) && (DIMSZ(m1, 1) == DIMSZ(m2, 1)))
+#define DIFF_DIMS(m1, m2) ((DIMSZ(m1, 0) != DIMSZ(m2, 0)) || (DIMSZ(m1, 1) != DIMSZ(m2, 1))) 
 
 
 /*    ALLOCATION    */
@@ -84,6 +91,7 @@ CML_API  MATRIX*       cml_lower_tri(size_t dim);
 CML_API  MATRIX*       cml_upper_tri(size_t dim);
 CML_API  void          cml_free(MATRIX *m);
 CML_API  MATRIX*       cml_new_sos(size_t nb_bq, size_t nb_ch, cml_real_t *coeffs);
+CML_API  ZMATRIX*      cml_real_to_cpx(MATRIX *m);
 
 
 /*    GET/SET    */
@@ -134,6 +142,7 @@ CML_API  void          cml_div_elem(MATRIX *m1, MATRIX *m2, MATRIX *opt);
 
 
 /*    SIGNAL PROCESSSING (MATRIX ONLY)   */
+CML_API  void          cml_add_chan_m1_m2(MATRIX *m1, size_t m1ch, MATRIX *m2, size_t m2ch);
 CML_API  cml_real_t    cml_sum(MATRIX *m);
 CML_API  void          cml_sum_dim(MATRIX *m, size_t dim, MATRIX *opt);
 CML_API  cml_real_t    cml_mean(MATRIX *m);
@@ -146,10 +155,8 @@ CML_API  void          cml_pow_const2mat(cml_real_t r1, MATRIX *m, MATRIX *opt);
 CML_API  void          cml_10_log10_abs(MATRIX *m, MATRIX *opt);
 CML_API  void          cml_20_log10_abs(MATRIX *m, MATRIX *opt);
 CML_API  void          cml_clip(MATRIX *m, cml_real_t lolim, cml_real_t hilim, MATRIX *opt);
-
-
-/*    SIGNAL PROCESSING (ETC)    */
 CML_API  void          cml_sos_proc(MATRIX *sos, MATRIX *m, MATRIX *scratch, MATRIX *opt);
+
 
 
 /*    OTHER OPERATIONS    */
@@ -440,8 +447,8 @@ CML_API MATRIX* cml0_gen_sin(size_t rows, size_t cols, cml_real_t phase_incr, MA
 /* multi-channel SOS filter format that stores the coefficients with the state 
    'back-to-back' and per-channel. This leverages the cml MATRIX to store
    multi-channel SOS or 'cascaded biqauds' data in one place and support
-   multi-channel filtering with no data types. A matrix of this format could
-   be constructed directly and manually */
+   multi-channel filtering with no extra data types. A matrix of this format
+   could be constructed directly and manually */
 CML_API MATRIX* cml_new_sos(size_t nb_bq, size_t nb_ch, cml_real_t *coeffs) {
     MATRIX *sos = cml_new(7*nb_bq, nb_ch);
     if (sos == NULL) {
@@ -465,6 +472,13 @@ CML_API MATRIX* cml_new_sos(size_t nb_bq, size_t nb_ch, cml_real_t *coeffs) {
 }
 
 
+CML_API ZMATRIX* cml_convert_MATRIX_to_ZMATRIX(MATRIX *m) {
+    ZMATRIX *z = (ZMATRIX *)m;
+    z->cols = z->rows >> 1; /* this should do the trick */
+    return z;
+}
+
+
 CML_API void cml_free(MATRIX *m) {
     if (m == NULL) {
         return;
@@ -472,6 +486,12 @@ CML_API void cml_free(MATRIX *m) {
 
     vec_free(m->data);
     free(m);
+}
+
+
+/* TODO - test cmlz_free */
+CML_API void cmlz_free(ZMATRIX *z) {
+    cml_free((MATRIX*)z);
 }
 
 
@@ -1097,6 +1117,21 @@ CML_API void cml_div_elem(MATRIX *m1, MATRIX *m2, MATRIX *opt) {
     }
 }
 
+/* add two channels in place */
+CML_API void cml_add_chan_m1_m2(MATRIX *m1, size_t m1ch, MATRIX *m2, size_t m2ch) {
+    if (m1 == NULL || m2 == NULL || m1->rows != m2->rows || m1->rows == 0 || m1ch >= m1->rows || m2ch >= m2->rows) {
+        errno = EINVAL;
+        return;
+    }
+
+    /* opt can be equal to m1 or m2, but must be specified by caller */
+    cml_real_t *m1ptr = MATRIX_CHAN2PTR(m1, m1ch);
+    cml_real_t *m2ptr = MATRIX_CHAN2PTR(m2, m2ch);
+    for (size_t i = 0; i < m1->rows; ++i) {
+        *(m1ptr++) += *(m2ptr++);
+    }
+}
+
 
 CML_API cml_real_t cml_sum(MATRIX *m) {
     if (m == NULL || m->rows == 0) {
@@ -1489,10 +1524,10 @@ CML_API void __biquad_proc(cml_real_t *bq, cml_real_t *in, cml_real_t *out, size
     cml_real_t d0;
     cml_real_t *w = bq + 5;
     for (size_t fix=0; fix<len; fix++) {
-        d0 =   in[fix]        \
+        d0 =   in[fix]      \
              - bq[3] * w[0] \
              - bq[4] * w[1] ;
-        out[fix] =   bq[0] *   d0 \
+        out[fix] =  bq[0] *   d0 \
                    + bq[1] * w[0] \
                    + bq[2] * w[1] ;
         w[1] = w[0];
@@ -1536,40 +1571,91 @@ CML_API void __sos_proc(cml_real_t *sos, size_t nb_bq, cml_real_t *in, size_t le
     }
 }
 
-
-CML_API void cml0_sos_proc(MATRIX *sos, MATRIX *m, MATRIX *scratch, MATRIX *opt) {
+/* TODO - just split up these functions for better readability */
+CML_API void cml0_sos_proc(MATRIX *sos, MATRIX *in, MATRIX *scratch, MATRIX *out, size_t in_ch, size_t out_ch) {
     bool free_scratch = false;
-    if (sos == NULL || m == NULL || m->rows == 0) {
+    if (sos == NULL || in == NULL || in->rows == 0) {
         errno = EINVAL;
         return;
     }
-    /* TODO assert (or errno) dim sizes */
+    if(out == NULL) {
+        out = in;
+    }
+
+    if(DIFF_DIM_SZ(in, 0, out, 0)) {
+        errno = EINVAL;
+        return;
+    }
 
     if(NULL == scratch) {
-        scratch = cml_new(m->rows, 1);
+        scratch = cml_new(in->rows, 1);
         free_scratch = true;
     }
 
-    if(opt == NULL) {
-        opt = m;
+    size_t nb_bq = sos->rows / 7;
+
+    /* 1 to 1 */
+    if (in_ch < in->cols && out_ch < out->cols) {
+        __sos_proc(
+            MATRIX_CHAN2PTR(sos, 0), nb_bq,
+            MATRIX_CHAN2PTR(in, in_ch), in->rows,
+            scratch->data,
+            MATRIX_CHAN2PTR(out, out_ch)
+        );
     }
 
-    size_t nb_bq = sos->rows / 7;
-    /* loop over columns */
-    for(size_t j=0; j<m->cols; j++) {
-        /* TODO - figure out src_ch and dst_ch logic */
-        /* TODO - figure out src_ch and dst_ch logic */
-        /* TODO - figure out src_ch and dst_ch logic */
-        /* TODO - figure out src_ch and dst_ch logic */
-        /* TODO - figure out src_ch and dst_ch logic */
-        /* TODO - figure out src_ch and dst_ch logic */
-        /* TODO - figure out src_ch and dst_ch logic */
+    /* ALL to ALL */
+    else if (in_ch == MATRIX_ALL_CH && out_ch == MATRIX_ALL_CH) {
+        if(DIFF_DIM_SZ(in, 1, out, 1)) {
+            errno = EINVAL;
+            return;
+        }
+        for(size_t j=0; j<in->cols; j++) {
+            __sos_proc(
+                MATRIX_CHAN2PTR(sos, j), nb_bq,
+                MATRIX_CHAN2PTR(in, j), in->rows,
+                scratch->data,
+                MATRIX_CHAN2PTR(out, j)
+            );
+        }
+    }
+
+    /* ALL to 1 */
+    else if (in_ch == MATRIX_ALL_CH && out_ch < out->cols) {
+        /* in == out is invalid for this case of 'ALL to 1' */
+        if (in == out ) {
+            errno = EINVAL;
+            return;
+        }
+        MATRIX *tmpmat = cml_new(in->rows, 1);
+        cml_set_col(out, out_ch, 0); /* zero final destination */
+        for (size_t j = 0; j < in->cols; ++j) {
+            __sos_proc(
+                MATRIX_CHAN2PTR(sos, j), nb_bq,
+                MATRIX_CHAN2PTR(in, j), in->rows,
+                scratch->data,
+                MATRIX_CHAN2PTR(tmpmat, 0)
+            );
+            /* sum result from tmpmat in to out_ch of out */
+            cml_add_chan_m1_m2(out, out_ch, tmpmat, 0);
+        }
+        cml_free(tmpmat);
+    }
+
+    /* 1 to ALL */
+    else if (in_ch == MATRIX_ALL_CH && out_ch == MATRIX_ALL_CH) {
+        /* filter in to channel 0 of out */
         __sos_proc(
-            MATRIX_CHAN2PTR(sos, j), nb_bq,
-            MATRIX_CHAN2PTR(m, j), m->rows,
+            MATRIX_CHAN2PTR(sos, 0), nb_bq,
+            MATRIX_CHAN2PTR(in, in_ch), in->rows,
             scratch->data,
-            MATRIX_CHAN2PTR(opt, j)
+            MATRIX_CHAN2PTR(out, 0)
         );
+
+        /* copy channel 0 of out to all other channels of out */
+        for (size_t j = 1; j < out->cols; ++j) {
+            cml_cpy_self_col(out, j, 0);
+        }
     }
 
     if(free_scratch) {

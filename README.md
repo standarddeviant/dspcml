@@ -1,11 +1,15 @@
 # DSPCML
 DSPCML is an acronym for Digital Signal Processing C Matrix Library. It is an adaption of the C Matrix Library (CML) referenced here: https://github.com/MichaelJWelsh/cml
 
-DSPCML aims to add common signal processing functions to the original CML over time. The primary goal is to achieve portability with ability to support optimized signal processing functions for different compilers and toolchains via 'compile-flag'. 
+DSPCML aims to add common signal processing functions to the original CML implementation. The primary goal is to achieve portability with ability to support optimized signal processing functions for different compilers and toolchains via preprocessor options, i.e. `#ifdef XYZ`. One example of this is when using the ESP-IDF for the ESP32 chip, the preprocessor check `#if ESP_PLATFORM` can be used to determine if building for the ESP32 or ESP32-S2 chips. In this cast, the optimized functions to be used are contained in `esp-dsp` : https://github.com/espressif/esp-dsp
 
 ## Notable changes from CML to DSPCML
 * The elementary data type of CML was `double`. In DSPCML this is changed to `cml_real_t` with the default as `float`. This type alias, along with per-sample math functions, is defined `cml_real_type.h`
-* Some new functions use the prefix `cml0` instead of just `cml`. These functions are explicitly designed to do work along dimension 0, typically as 'channels' of 'samples' in the context of signal processing. This fuzzy distinction is where DSP meets CML.
+* Support for a complex data type, `cml_cpx_t` is being added. This is simply simply two instances of `cml_real_t` that represents the real and imaginary parts of a complex number.
+* The original CML implementation used the `cml` prefix in function names. DSPCML adds a few more for the following reasons
+    - `cml0` - these functions are explicitly designed to do work along dimension 0, typically as 'channels' of 'samples' in the context of signal processing. This fuzzy distinction is where DSP meets CML.
+    - `cmlz` - these functions are designed to work on complex matrices, i.e. instances of `ZMATRIX`
+    - `cmlz0` - these functions are designed to work on the 0th dimension of complex matrices, i.e. instances of `ZMATRIX`
 
 ## Signal Processing Function Wishlist
 DSPCML aims to be a strict superset of the functions in CML.
@@ -28,13 +32,14 @@ The signal processing function wish-list is maintained below:
 - [x] MIN
 - [x] RMS
 - [x] SUM
-- [ ] XMEAN (exclusive mean)
 
 #### Per-Dimension-0 (output same columns as input)
 - [x] GENERATE LIN
 - [x] GENERATE SIN
 - [x] GENERATE COS
-- [x] SOS (cascaded biquads)
+- [x] SOS FILTER (cascaded biquads)
+- [ ] XMEAN (exclusive mean)
+- [ ] FIR FILTER
 - [ ] FFT (Real input)
 - [ ] FFT (Complex input)
 - [ ] DTFT (Real input)

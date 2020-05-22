@@ -106,6 +106,7 @@ CML_API  void          cml_set_sos_coeffs_all(MATRIX *sos, cml_real_t *coeffs);
 /*    PHYSICAL MANIPULATION    */
 CML_API  void          cml_cpy(MATRIX *dest, MATRIX *src);
 CML_API  void          cml_cpy_row(MATRIX *dest, MATRIX *src, size_t dest_row, size_t src_row);
+CML_API  void          cml_cpy_rows(MATRIX *dst, MATRIX *src, size_t dst_lo, size_t dst_hi, size_t src_lo, size_t src_hi);
 CML_API  void          cml_cpy_col(MATRIX *dest, MATRIX *src, size_t dest_col, size_t src_col);
 CML_API  void          cml_cpy_elem(MATRIX *dest, MATRIX *src, size_t dest_row, size_t dest_col, size_t src_row, size_t src_col);
 CML_API  void          cml_cpy_self_row(MATRIX *m, size_t dest_row, size_t src_row);
@@ -632,6 +633,23 @@ CML_API void cml_cpy_self_row(MATRIX *m, size_t dest_row, size_t src_row) {
 }
 
 
+CML_API void cml_cpy_self_row_range(MATRIX *m, size_t dst_row, size_t src_row, size_t nb_rows) {
+    if (m == NULL || dst_row + nb_rows > m->rows || src_row + nb_rows >=  m->rows) {
+        errno = EINVAL;
+        return;
+    }
+    
+    for(size_t j = 0; j < m->cols; ++j) {
+        // void * memcpy ( void * destination, const void * source, size_t num );
+        memcpy(
+            (void *)(MATRIX_COL2PTR(m, j) + dst_row),
+            (void *)(MATRIX_COL2PTR(m, j) + src_row),
+            (nb_rows * sizeof(cml_real_t))
+        );
+    }
+}
+
+
 CML_API void cml_cpy_self_col(MATRIX *m, size_t dest_col, size_t src_col) {
     if (m == NULL || dest_col >= m->cols || src_col >= m->cols) {
         errno = EINVAL;
@@ -640,6 +658,23 @@ CML_API void cml_cpy_self_col(MATRIX *m, size_t dest_col, size_t src_col) {
 
     for (size_t i = 0; i < m->rows; ++i) {
         cml_set(m, i, dest_col, cml_get(m, i, src_col));
+    }
+}
+
+
+CML_API void cml_cpy_self_col_range(MATRIX *m, size_t dst_col, size_t src_col, size_t nb_cols) {
+    if (m == NULL || dst_col + nb_cols > m->cols || src_col + nb_cols >=  m->cols) {
+        errno = EINVAL;
+        return;
+    }
+    
+    for(size_t i = 0; i < nb_cols; ++i) {
+        // void * memcpy ( void * destination, const void * source, size_t num );
+        memcpy(
+            (void *)(MATRIX_COL2PTR(m, dst_col + i)),
+            (void *)(MATRIX_COL2PTR(m, src_col + i)),
+            (m->cols * sizeof(cml_real_t))
+        );
     }
 }
 

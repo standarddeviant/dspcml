@@ -85,7 +85,10 @@ typedef struct ZMATRIX {
 /*    ALLOCATION    */
 CML_API  MATRIX*       cml_new(size_t rows, size_t cols);
 CML_API  MATRIX*       cml_dup(MATRIX *m);
+CML_API  MATRIX*       cml_zeros(size_t rows, size_t cols);
 CML_API  MATRIX*       cml_ones(size_t rows, size_t cols);
+CML_API  MATRIX*       cml_zeros_like(MATRIX *m);
+CML_API  MATRIX*       cml_ones_like(MATRIX *m);
 CML_API  MATRIX*       cml_identity(size_t dim);
 CML_API  MATRIX*       cml_lower_tri(size_t dim);
 CML_API  MATRIX*       cml_upper_tri(size_t dim);
@@ -289,6 +292,16 @@ CML_API MATRIX* cml_ones(size_t rows, size_t cols) {
     cml_set_all(m, 1);
 
     return m;
+}
+
+
+CML_API  MATRIX* cml_zeros_like(MATRIX *m) {
+    return cml_new(m->rows, m->cols);
+}
+
+
+CML_API MATRIX* cml_ones_like(MATRIX *m) {
+    return cml_ones(m->rows, m->cols);
 }
 
 

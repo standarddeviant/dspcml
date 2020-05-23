@@ -7,7 +7,7 @@ DSPCML aims to add common signal processing functions to the original CML implem
 * The elementary data type of CML was `double`. In DSPCML this is changed to `cml_real_t` with the default as `float`. This type alias, along with per-sample math functions, is defined `cml_real_type.h`
 * Support for a complex data type, `cml_cpx_t` is being added. This is simply simply two instances of `cml_real_t` that represents the real and imaginary parts of a complex number.
 * The original CML implementation used the `cml` prefix in function names. DSPCML adds a few more for the following reasons
-    - `cml0` - these functions are explicitly designed to do work along dimension 0, typically as 'channels' of 'samples' in the context of signal processing. This fuzzy distinction is where DSP meets CML.
+    - `cml0` - these functions are explicitly designed to do work along dimension 0, typically as 'channels' of 'samples' in the context of signal processing. This fuzzy distinction is where DSP meets CML. Some of these functions exploit the fact that dimension 0 of a CML matrix is laid out in contiguous memory.
     - `cmlz` - these functions are designed to work on complex matrices, i.e. instances of `ZMATRIX`
     - `cmlz0` - these functions are designed to work on the 0th dimension of complex matrices, i.e. instances of `ZMATRIX`
 

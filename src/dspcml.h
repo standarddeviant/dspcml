@@ -91,6 +91,7 @@ CML_API  MATRIX*       cml_lower_tri(size_t dim);
 CML_API  MATRIX*       cml_upper_tri(size_t dim);
 CML_API  void          cml_free(MATRIX *m);
 CML_API  MATRIX*       cml_new_sos(size_t nb_bq, size_t nb_ch, cml_real_t *coeffs);
+CML_API  MATRIX*       cml_new_fir_mat(size_t taps, size_t len, size_t chans);
 CML_API  ZMATRIX*      cml_real_to_cpx(MATRIX *m);
 
 
@@ -473,6 +474,12 @@ CML_API MATRIX* cml_new_sos(size_t nb_bq, size_t nb_ch, cml_real_t *coeffs) {
 }
 
 
+/* very simple function to create new fir filter state */
+CML_API MATRIX* cml_new_fir_state(size_t taps, size_t len, size_t chans) {
+    return cml_new(taps + len - 1, chans);
+}
+
+
 CML_API ZMATRIX* cml_convert_MATRIX_to_ZMATRIX(MATRIX *m) {
     ZMATRIX *z = (ZMATRIX *)m;
     z->cols = z->rows >> 1; /* this should do the trick */
@@ -598,6 +605,23 @@ CML_API void cml_cpy_row(MATRIX *dest, MATRIX *src, size_t dest_row, size_t src_
     }
 }
 
+CML_API void cml_cpy_row_range(MATRIX *dst, MATRIX *src, size_t dst_row, size_t src_row, size_t nb_rows) {
+    if (dst == NULL || src == NULL || dst->cols != src->cols ||  dst_row + nb_rows > dst->rows || src_row + nb_rows > src->rows) {
+        errno = EINVAL;
+        return;
+    }
+    
+    for(size_t j = 0; j < src->cols; ++j) {
+        // void * memcpy ( void * destination, const void * source, size_t num );
+        memcpy(
+            (void *)(MATRIX_COL2PTR(dst, j) + dst_row),
+            (void *)(MATRIX_COL2PTR(src, j) + src_row),
+            (nb_rows * sizeof(cml_real_t))
+        );
+    }
+}
+
+
 
 CML_API void cml_cpy_col(MATRIX *dest, MATRIX *src, size_t dest_col, size_t src_col) {
     if (dest == NULL || src == NULL || dest == src || dest->rows != src->rows || dest_col >= dest->cols || src_col >= src->cols) {
@@ -634,19 +658,7 @@ CML_API void cml_cpy_self_row(MATRIX *m, size_t dest_row, size_t src_row) {
 
 
 CML_API void cml_cpy_self_row_range(MATRIX *m, size_t dst_row, size_t src_row, size_t nb_rows) {
-    if (m == NULL || dst_row + nb_rows > m->rows || src_row + nb_rows >=  m->rows) {
-        errno = EINVAL;
-        return;
-    }
-    
-    for(size_t j = 0; j < m->cols; ++j) {
-        // void * memcpy ( void * destination, const void * source, size_t num );
-        memcpy(
-            (void *)(MATRIX_COL2PTR(m, j) + dst_row),
-            (void *)(MATRIX_COL2PTR(m, j) + src_row),
-            (nb_rows * sizeof(cml_real_t))
-        );
-    }
+    cml_cpy_row_range(m, m, dst_row, src_row, nb_rows);
 }
 
 
@@ -1716,6 +1728,52 @@ CML_API void cml0_sos_proc(MATRIX *sos, MATRIX *in, MATRIX *scratch, MATRIX *out
     if(free_scratch) {
         cml_free(scratch);
     }
+}
+
+
+CML_API cml_real_t __dot_prod(cml_real_t *p1, cml_real_t *p2, size_t len, bool flip) {
+    cml_real_t out = 0;
+    int incr = 1;
+    if (flip) {
+        incr = -1;
+        p2 += (len - 1);
+    }
+    for (size_t i = 0; i < len; ++i) {
+        out += (*(p1++)) * (*p2);
+        p2 += incr;
+    }
+    return out;
+}
+
+
+CML_API void cml0_fir_proc(MATRIX *coef, MATRIX *state, MATRIX *in, MATRIX *out, size_t len) {
+    if (NULL == coef || NULL == state || NULL == in || NULL == out || in->cols != out->cols || \
+            0 == coef->rows || coef->rows + len - 1 > state->rows || len > out->rows) {
+        errno = EINVAL;
+        return;
+    }
+
+    /* copy input to state matrix where previous input is at the beginning */
+    cml_cpy_row_range(state, in, coef->rows - 1, 0, len);
+
+    for(size_t j = 0; j < in->cols; ++j) {
+        /* filter each channel */
+        cml_real_t *cptr = (j < coef->cols) ? MATRIX_CHAN2PTR(coef, j) : MATRIX_CHAN2PTR(coef, 0);
+        for(size_t i = 0; i < len; ++i) {
+            cml_set(out,
+                i, j,
+                __dot_prod(
+                    MATRIX_CHAN2PTR(state, j) + i, // data pointer
+                    cptr,                          // coef pointer
+                    coef->rows,                    // len of dot_prod / conv
+                    true                           // flip to do conv instead of dot_prod
+                )
+            );
+        }
+    }
+
+    /* copy the last part of state to the beginning for the next call */
+    cml_cpy_row_range(state, state, 0, len - coef->rows + 1, len - 1);
 }
 
 

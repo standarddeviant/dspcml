@@ -281,6 +281,10 @@ CML_API MATRIX* cml_dup(MATRIX *m) {
     return dup;
 }
 
+CML_API MATRIX* cml_zeros(size_t rows, size_t cols) {
+    return cml_new(rows, cols);
+}
+
 
 CML_API MATRIX* cml_ones(size_t rows, size_t cols) {
     MATRIX *m = cml_new(rows, cols);
@@ -1269,7 +1273,7 @@ CML_API cml_real_t cml_rms(MATRIX *m){
         return 0;
     }
 
-    cml_real_accum_t tmp;
+    cml_real_accum_t tmp = 0;
     for (size_t i = 0; i < m->rows; ++i) {
         for (size_t j = 0; j < m->cols; ++j) {
             tmp += (cml_real_accum_t)cml_real_square(cml_get(m, i, j));
@@ -1617,7 +1621,7 @@ CML_API void __biquad_proc(cml_real_t *bq, cml_real_t *in, cml_real_t *out, size
 
 CML_API void __sos_proc(cml_real_t *sos, size_t nb_bq, cml_real_t *in, size_t len, cml_real_t *out, cml_real_t *scratch) {
     bool free_scratch = false;
-    size_t ppix, err;
+    size_t ppix = 0;
     cml_real_t *buf[2], *src, *dst;
 
     /* determine if we should malloc a scratch buffer */

@@ -89,13 +89,15 @@ CML_API  MATRIX*       cml_zeros(size_t rows, size_t cols);
 CML_API  MATRIX*       cml_ones(size_t rows, size_t cols);
 CML_API  MATRIX*       cml_zeros_like(MATRIX *m);
 CML_API  MATRIX*       cml_ones_like(MATRIX *m);
+CML_API  MATRIX*       cml_tile(MATRIX *m, size_t row_copies, size_t col_copies);
 CML_API  MATRIX*       cml_identity(size_t dim);
 CML_API  MATRIX*       cml_lower_tri(size_t dim);
 CML_API  MATRIX*       cml_upper_tri(size_t dim);
-CML_API  void          cml_free(MATRIX *m);
+CML_API  MATRIX*       cml_arange(cml_real_t start, cml_real_t stop, cml_real_t step);
 CML_API  MATRIX*       cml_new_sos(size_t nb_bq, size_t nb_ch, cml_real_t *coeffs);
 CML_API  MATRIX*       cml_new_fir_mat(size_t taps, size_t len, size_t chans);
 CML_API  ZMATRIX*      cml_real_to_cpx(MATRIX *m);
+CML_API  void          cml_free(MATRIX *m);
 
 
 /*    GET/SET    */
@@ -105,17 +107,22 @@ CML_API  void          cml_set_all(MATRIX *m, cml_real_t data);
 CML_API  void          cml_set_row(MATRIX *m, size_t row, cml_real_t data);
 CML_API  void          cml_set_col(MATRIX *m, size_t col, cml_real_t data);
 CML_API  void          cml_set_sos_coeffs_all(MATRIX *sos, cml_real_t *coeffs);
+CML_API  void          cml_reshape(MATRIX *m, size_t new_rows, size_t new_cols);
 
 
 /*    PHYSICAL MANIPULATION    */
-CML_API  void          cml_cpy(MATRIX *dest, MATRIX *src);
-CML_API  void          cml_cpy_row(MATRIX *dest, MATRIX *src, size_t dest_row, size_t src_row);
-CML_API  void          cml_cpy_rows(MATRIX *dst, MATRIX *src, size_t dst_lo, size_t dst_hi, size_t src_lo, size_t src_hi);
-CML_API  void          cml_cpy_col(MATRIX *dest, MATRIX *src, size_t dest_col, size_t src_col);
-CML_API  void          cml_cpy_elem(MATRIX *dest, MATRIX *src, size_t dest_row, size_t dest_col, size_t src_row, size_t src_col);
-CML_API  void          cml_cpy_self_row(MATRIX *m, size_t dest_row, size_t src_row);
-CML_API  void          cml_cpy_self_col(MATRIX *m, size_t dest_col, size_t src_col);
-CML_API  void          cml_cpy_self_elem(MATRIX *m, size_t dest_row, size_t dest_col, size_t src_row, size_t src_col);
+CML_API  void          cml_cpy(MATRIX *dst, MATRIX *src);
+CML_API  void          cml_cpy_row(MATRIX *dst, MATRIX *src, size_t dst_row, size_t src_row);
+CML_API  void          cml_cpy_row_range(MATRIX *dst, MATRIX *src, size_t dst_row, size_t src_row, size_t nb_rows);
+CML_API  void          cml_cpy_col(MATRIX *dst, MATRIX *src, size_t dst_col, size_t src_col);
+CML_API  void          cml_cpy_col_range(MATRIX *dst, MATRIX *src, size_t dst_col, size_t src_col, size_t nb_cols);
+CML_API  void          cml_cpy_elem(MATRIX *dst, MATRIX *src, size_t dst_row, size_t dst_col, size_t src_row, size_t src_col);
+CML_API  void          cml_cpy_submat(MATRIX *dst, MATRIX *src, size_t dst_row, size_t dst_col, size_t src_row, size_t src_col, size_t nb_rows, size_t nb_cols); 
+CML_API  void          cml_cpy_self_row(MATRIX *m, size_t dst_row, size_t src_row);
+CML_API  void          cml_cpy_self_col(MATRIX *m, size_t dst_col, size_t src_col);
+CML_API  void          cml_cpy_self_elem(MATRIX *m, size_t dst_row, size_t dst_col, size_t src_row, size_t src_col);
+CML_API  void          cml_cpy_self_row_range(MATRIX *m, size_t dst_row, size_t src_row, size_t nb_rows);
+CML_API  void          cml_cpy_self_col_range(MATRIX *m, size_t dst_col, size_t src_col, size_t nb_cols);
 CML_API  void          cml_swap(MATRIX *m1, MATRIX *m2);
 CML_API  void          cml_swap_row(MATRIX *m1, MATRIX *m2, size_t m1_row, size_t m2_row);
 CML_API  void          cml_swap_col(MATRIX *m1, MATRIX *m2, size_t m1_col, size_t m2_col);
@@ -123,17 +130,17 @@ CML_API  void          cml_swap_elem(MATRIX *m1, MATRIX *m2, size_t m1_row, size
 CML_API  void          cml_swap_self_row(MATRIX *m, size_t row_1, size_t row_2);
 CML_API  void          cml_swap_self_col(MATRIX *m, size_t col_1, size_t col_2);
 CML_API  void          cml_swap_self_elem(MATRIX *m, size_t row_1, size_t col_1, size_t row_2, size_t col_2);
-CML_API  void          cml_ins_row(MATRIX *dest, MATRIX *src, size_t dest_row, size_t src_row);
-CML_API  void          cml_ins_col(MATRIX *dest, MATRIX *src, size_t dest_col, size_t src_col);
-CML_API  void          cml_ins_self_row(MATRIX *m, size_t dest_row, size_t src_row);
-CML_API  void          cml_ins_self_col(MATRIX *m, size_t dest_col, size_t src_col);
+CML_API  void          cml_ins_row(MATRIX *dst, MATRIX *src, size_t dst_row, size_t src_row);
+CML_API  void          cml_ins_col(MATRIX *dst, MATRIX *src, size_t dst_col, size_t src_col);
+CML_API  void          cml_ins_self_row(MATRIX *m, size_t dst_row, size_t src_row);
+CML_API  void          cml_ins_self_col(MATRIX *m, size_t dst_col, size_t src_col);
 CML_API  void          cml_del_all(MATRIX *m);
 CML_API  void          cml_del_row(MATRIX *m, size_t row);
 CML_API  void          cml_del_col(MATRIX *m, size_t col);
-CML_API  void          cml_adjoin_top(MATRIX *dest, MATRIX *src);
-CML_API  void          cml_adjoin_bottom(MATRIX *dest, MATRIX *src);
-CML_API  void          cml_adjoin_left(MATRIX *dest, MATRIX *src);
-CML_API  void          cml_adjoin_right(MATRIX *dest, MATRIX *src);
+CML_API  void          cml_adjoin_top(MATRIX *dst, MATRIX *src);
+CML_API  void          cml_adjoin_bottom(MATRIX *dst, MATRIX *src);
+CML_API  void          cml_adjoin_left(MATRIX *dst, MATRIX *src);
+CML_API  void          cml_adjoin_right(MATRIX *dst, MATRIX *src);
 
 
 /*    ARITHMETIC    */
@@ -144,6 +151,12 @@ CML_API  void          cml_sub(MATRIX *m1, MATRIX *m2, MATRIX *opt);
 CML_API  void          cml_mul(MATRIX *m1, MATRIX *m2, MATRIX *opt);
 CML_API  void          cml_mul_elem(MATRIX *m1, MATRIX *m2, MATRIX *opt);
 CML_API  void          cml_div_elem(MATRIX *m1, MATRIX *m2, MATRIX *opt);
+
+
+/* TRIGONOMETRY */
+CML_API void cml_sin(MATRIX *m, MATRIX *opt);
+CML_API void cml_cos(MATRIX *m, MATRIX *opt);
+
 
 
 /*    SIGNAL PROCESSSING (MATRIX ONLY)   */
@@ -309,6 +322,20 @@ CML_API MATRIX* cml_ones_like(MATRIX *m) {
 }
 
 
+CML_API MATRIX* cml_tile(MATRIX *m, size_t row_copies, size_t col_copies) {
+    /* TODO checks... */
+    MATRIX *opt = cml_new(m->rows * row_copies, m->cols * col_copies);
+
+    for(size_t rc = 0; rc < row_copies; ++rc) {
+        for(size_t cc = 0; cc < col_copies; ++cc) {
+            cml_cpy_submat(opt, m, rc * m->rows, cc * m->cols, 0, 0, m->rows, m->cols);
+        }
+    }
+
+    return opt;
+}
+
+
 CML_API MATRIX* cml_identity(size_t dim) {
     MATRIX *m = cml_new(dim, dim);
 
@@ -419,48 +446,39 @@ CML_API void cml_sin(MATRIX *m, MATRIX *opt) {
 
 
 /* linear generator */
-CML_API MATRIX* cml0_gen_lin(size_t rows, size_t cols, cml_real_t incr, MATRIX *starts) {
-    bool free_starts = false;
-    MATRIX *m = cml_new(rows, cols);
+CML_API MATRIX* cml_arange(cml_real_t start, cml_real_t stop, cml_real_t step) {
+    cml_real_t tmp = (stop - start) / step;
+    size_t rows = (size_t)cml_real_ceil(tmp);
 
+    MATRIX *m = cml_new(rows, 1);
     if(NULL == m) {
         return m;
     }
 
-    if(NULL == starts) {
-        starts = cml_new(cols, 1);
-    }
-
-    for (size_t j=0; j<cols; ++j) {
-        cml_real_t val = cml_get(starts, j, 0);
-        for (size_t i = 0; i < rows; ++i) {
-            cml_set(m, i, j, val);
-            val += incr;
-        }
-    }
-
-    if(free_starts) {
-        cml_free(starts);
+    tmp = start;
+    for (size_t i = 0; i < rows; ++i) {
+        cml_set(m, i, 0, tmp);
+        tmp += step;
     }
 
     return m;
 }
 
 
-CML_API MATRIX* cml0_gen_cos(size_t rows, size_t cols, cml_real_t phase_incr, MATRIX *phase_starts) {
-    /* create matrix of phases values */
-    MATRIX *m = cml0_gen_lin(rows, cols, phase_incr, phase_starts);
-    cml_cos(m, NULL); /* cos of phases in-place */
-    return m;
-}
+// CML_API MATRIX* cml0_gen_cos(size_t rows, size_t cols, cml_real_t phase_incr, MATRIX *phase_starts) {
+//     /* create matrix of phases values */
+//     MATRIX *m = cml0_gen_lin(rows, cols, phase_incr, phase_starts);
+//     cml_cos(m, NULL); /* cos of phases in-place */
+//     return m;
+// }
 
 
-CML_API MATRIX* cml0_gen_sin(size_t rows, size_t cols, cml_real_t phase_incr, MATRIX *phase_starts) {
-    /* create matrix of phases values */
-    MATRIX *m = cml0_gen_lin(rows, cols, phase_incr, phase_starts);
-    cml_sin(m, NULL); /* sin of phases in-place */
-    return m;
-}
+// CML_API MATRIX* cml0_gen_sin(size_t rows, size_t cols, cml_real_t phase_incr, MATRIX *phase_starts) {
+//     /* create matrix of phases values */
+//     MATRIX *m = cml0_gen_lin(rows, cols, phase_incr, phase_starts);
+//     cml_sin(m, NULL); /* sin of phases in-place */
+//     return m;
+// }
 
 
 /* multi-channel SOS filter format that stores the coefficients with the state 
@@ -476,7 +494,7 @@ CML_API MATRIX* cml_new_sos(size_t nb_bq, size_t nb_ch, cml_real_t *coeffs) {
 
     for (size_t ch = 0; ch < nb_ch; ++ch) {
         for (size_t bq = 0; bq < nb_bq; ++bq) {
-            cml_real_t *bq_coef = coeffs + 6 + (bq + (ch * nb_bq));
+            cml_real_t *bq_coef = coeffs + 6 * (bq + (ch * nb_bq));
             cml_set(sos, 7*bq + 0, ch, *(bq_coef + 0)); /* b0 */
             cml_set(sos, 7*bq + 1, ch, *(bq_coef + 1)); /* b1 */
             cml_set(sos, 7*bq + 2, ch, *(bq_coef + 2)); /* b2 */
@@ -588,8 +606,20 @@ CML_API void cml_set_sos_state_zero(MATRIX *sos) {
 }
 
 
-CML_API void cml_cpy(MATRIX *dest, MATRIX *src) {
-    if (dest == NULL || src == NULL || dest == src) {
+/* NOTE: this does 'column-major' reshaping and does not modify m->data */
+CML_API void cml_reshape(MATRIX *m, size_t new_rows, size_t new_cols) {
+    if (m->rows * m->cols != new_rows * new_cols) {
+        errno = EINVAL;
+        return;
+    }
+
+    m->rows = new_rows;
+    m->cols = new_cols;
+}
+
+
+CML_API void cml_cpy(MATRIX *dst, MATRIX *src) {
+    if (dst == NULL || src == NULL || dst == src) {
         errno = EINVAL;
         return;
     }
@@ -604,21 +634,21 @@ CML_API void cml_cpy(MATRIX *dest, MATRIX *src) {
         errno = old_errno;
     }
 
-    vec_free(dest->data);
-    dest->rows = src->rows;
-    dest->cols = src->cols;
-    dest->data = copied_data;
+    vec_free(dst->data);
+    dst->rows = src->rows;
+    dst->cols = src->cols;
+    dst->data = copied_data;
 }
 
 
-CML_API void cml_cpy_row(MATRIX *dest, MATRIX *src, size_t dest_row, size_t src_row) {
-    if (dest == NULL || src == NULL || dest == src || dest->cols != src->cols || dest_row >= dest->rows || src_row >= src->rows) {
+CML_API void cml_cpy_row(MATRIX *dst, MATRIX *src, size_t dst_row, size_t src_row) {
+    if (dst == NULL || src == NULL || dst == src || dst->cols != src->cols || dst_row >= dst->rows || src_row >= src->rows) {
         errno = EINVAL;
         return;
     }
 
-    for (size_t j = 0; j < dest->cols; ++j) {
-        cml_set(dest, dest_row, j, cml_get(src, src_row, j));
+    for (size_t j = 0; j < dst->cols; ++j) {
+        cml_set(dst, dst_row, j, cml_get(src, src_row, j));
     }
 }
 
@@ -629,7 +659,7 @@ CML_API void cml_cpy_row_range(MATRIX *dst, MATRIX *src, size_t dst_row, size_t 
     }
     
     for(size_t j = 0; j < src->cols; ++j) {
-        // void * memcpy ( void * destination, const void * source, size_t num );
+        // void * memcpy ( void * dstination, const void * source, size_t num );
         memcpy(
             (void *)(MATRIX_COL2PTR(dst, j) + dst_row),
             (void *)(MATRIX_COL2PTR(src, j) + src_row),
@@ -640,36 +670,36 @@ CML_API void cml_cpy_row_range(MATRIX *dst, MATRIX *src, size_t dst_row, size_t 
 
 
 
-CML_API void cml_cpy_col(MATRIX *dest, MATRIX *src, size_t dest_col, size_t src_col) {
-    if (dest == NULL || src == NULL || dest == src || dest->rows != src->rows || dest_col >= dest->cols || src_col >= src->cols) {
+CML_API void cml_cpy_col(MATRIX *dst, MATRIX *src, size_t dst_col, size_t src_col) {
+    if (dst == NULL || src == NULL || dst == src || dst->rows != src->rows || dst_col >= dst->cols || src_col >= src->cols) {
         errno = EINVAL;
         return;
     }
 
-    for (size_t i = 0; i < dest->rows; ++i) {
-        cml_set(dest, i, dest_col, cml_get(src, i, src_col));
+    for (size_t i = 0; i < dst->rows; ++i) {
+        cml_set(dst, i, dst_col, cml_get(src, i, src_col));
     }
 }
 
 
-CML_API void cml_cpy_elem(MATRIX *dest, MATRIX *src, size_t dest_row, size_t dest_col, size_t src_row, size_t src_col) {
-    if (dest == NULL || src == NULL || dest == src || dest_row >= dest->rows || dest_col >= dest->cols || src_row >= src->rows || src_col >= src->cols) {
+CML_API void cml_cpy_elem(MATRIX *dst, MATRIX *src, size_t dst_row, size_t dst_col, size_t src_row, size_t src_col) {
+    if (dst == NULL || src == NULL || dst == src || dst_row >= dst->rows || dst_col >= dst->cols || src_row >= src->rows || src_col >= src->cols) {
         errno = EINVAL;
         return;
     }
 
-    cml_set(dest, dest_row, dest_col, cml_get(src, src_row, src_col));
+    cml_set(dst, dst_row, dst_col, cml_get(src, src_row, src_col));
 }
 
 
-CML_API void cml_cpy_self_row(MATRIX *m, size_t dest_row, size_t src_row) {
-    if (m == NULL || dest_row >= m->rows || src_row >= m->rows) {
+CML_API void cml_cpy_self_row(MATRIX *m, size_t dst_row, size_t src_row) {
+    if (m == NULL || dst_row >= m->rows || src_row >= m->rows) {
         errno = EINVAL;
         return;
     }
 
     for (size_t j = 0; j < m->cols; ++j) {
-        cml_set(m, dest_row, j, cml_get(m, src_row, j));
+        cml_set(m, dst_row, j, cml_get(m, src_row, j));
     }
 }
 
@@ -679,14 +709,14 @@ CML_API void cml_cpy_self_row_range(MATRIX *m, size_t dst_row, size_t src_row, s
 }
 
 
-CML_API void cml_cpy_self_col(MATRIX *m, size_t dest_col, size_t src_col) {
-    if (m == NULL || dest_col >= m->cols || src_col >= m->cols) {
+CML_API void cml_cpy_self_col(MATRIX *m, size_t dst_col, size_t src_col) {
+    if (m == NULL || dst_col >= m->cols || src_col >= m->cols) {
         errno = EINVAL;
         return;
     }
 
     for (size_t i = 0; i < m->rows; ++i) {
-        cml_set(m, i, dest_col, cml_get(m, i, src_col));
+        cml_set(m, i, dst_col, cml_get(m, i, src_col));
     }
 }
 
@@ -698,7 +728,7 @@ CML_API void cml_cpy_self_col_range(MATRIX *m, size_t dst_col, size_t src_col, s
     }
     
     for(size_t i = 0; i < nb_cols; ++i) {
-        // void * memcpy ( void * destination, const void * source, size_t num );
+        // void * memcpy ( void * dstination, const void * source, size_t num );
         memcpy(
             (void *)(MATRIX_COL2PTR(m, dst_col + i)),
             (void *)(MATRIX_COL2PTR(m, src_col + i)),
@@ -708,13 +738,42 @@ CML_API void cml_cpy_self_col_range(MATRIX *m, size_t dst_col, size_t src_col, s
 }
 
 
-CML_API void cml_cpy_self_elem(MATRIX *m, size_t dest_row, size_t dest_col, size_t src_row, size_t src_col) {
-    if (m == NULL || dest_row >= m->rows || dest_col >= m->cols || src_row >= m->rows || src_col >= m->cols) {
+CML_API void cml_cpy_self_elem(MATRIX *m, size_t dst_row, size_t dst_col, size_t src_row, size_t src_col) {
+    if (m == NULL || dst_row >= m->rows || dst_col >= m->cols || src_row >= m->rows || src_col >= m->cols) {
         errno = EINVAL;
         return;
     }
 
-    cml_set(m, dest_row, dest_col, cml_get(m, src_row, src_col));
+    cml_set(m, dst_row, dst_col, cml_get(m, src_row, src_col));
+}
+
+
+CML_API void cml_cpy_submat(MATRIX *dst, MATRIX *src, size_t dst_row, size_t dst_col, size_t src_row, size_t src_col, size_t nb_rows, size_t nb_cols) {
+    /* TODO checks... */
+
+    // for(size_t j = 0; j < nb_cols; ++j) {
+    //     // void * memcpy ( void * destination, const void * source, size_t num );
+    //     memcpy(
+    //         (      void *)(MATRIX_COL2PTR(dst, dst_col + j) + dst_row),
+    //         (const void *)(MATRIX_COL2PTR(src, src_col + j) + src_row),
+    //         (nb_rows * sizeof(cml_real_t))
+    //     );
+    // }
+
+    for(size_t j = 0; j < nb_cols; ++j) {
+        for(size_t i = 0; i < nb_cols; ++i) {
+            cml_set(
+                dst,
+                dst_row + i,
+                dst_col + j,
+                cml_get(
+                    src,
+                    src_row + i,
+                    src_col + j
+                )
+            );
+        }
+    }
 }
 
 
@@ -850,48 +909,48 @@ CML_API void cml_swap_self_elem(MATRIX *m, size_t row_1, size_t col_1, size_t ro
 }
 
 
-CML_API void cml_ins_row(MATRIX *dest, MATRIX *src, size_t dest_row, size_t src_row) {
-    if (dest == NULL || src == NULL || dest == src || dest->cols != src->cols || dest_row > dest->rows || src_row >= src->rows) {
+CML_API void cml_ins_row(MATRIX *dst, MATRIX *src, size_t dst_row, size_t src_row) {
+    if (dst == NULL || src == NULL || dst == src || dst->cols != src->cols || dst_row > dst->rows || src_row >= src->rows) {
         errno = EINVAL;
         return;
     }
 
-    vec_reserve(dest->data, vec_len(dest->data) + dest->cols);
+    vec_reserve(dst->data, vec_len(dst->data) + dst->cols);
 
-    if (vec_cap(dest->data) < vec_len(dest->data) + dest->cols) {
+    if (vec_cap(dst->data) < vec_len(dst->data) + dst->cols) {
         errno = ENOMEM;
         return;
     }
 
-    for (size_t j = dest->cols; j-- > 0; ) {
-        vec_insert(dest->data, cml_get(src, src_row, j), dest->rows * j + dest_row);
+    for (size_t j = dst->cols; j-- > 0; ) {
+        vec_insert(dst->data, cml_get(src, src_row, j), dst->rows * j + dst_row);
     }
-    dest->rows += 1;
+    dst->rows += 1;
 }
 
 
-CML_API void cml_ins_col(MATRIX *dest, MATRIX *src, size_t dest_col, size_t src_col) {
-    if (dest == NULL || src == NULL || dest == src || dest->rows != src->rows || dest_col > dest->cols || src_col >= src->cols) {
+CML_API void cml_ins_col(MATRIX *dst, MATRIX *src, size_t dst_col, size_t src_col) {
+    if (dst == NULL || src == NULL || dst == src || dst->rows != src->rows || dst_col > dst->cols || src_col >= src->cols) {
         errno = EINVAL;
         return;
     }
 
-    vec_reserve(dest->data, vec_len(dest->data) + dest->rows);
+    vec_reserve(dst->data, vec_len(dst->data) + dst->rows);
     
-    if (vec_cap(dest->data) < vec_len(dest->data) + dest->rows) {
+    if (vec_cap(dst->data) < vec_len(dst->data) + dst->rows) {
         errno = ENOMEM;
         return;
     }
 
-    for (size_t i = dest->rows; i-- > 0; ) {
-        vec_insert(dest->data, cml_get(src, i, src_col), dest->rows * dest_col);
+    for (size_t i = dst->rows; i-- > 0; ) {
+        vec_insert(dst->data, cml_get(src, i, src_col), dst->rows * dst_col);
     }
-    dest->cols += 1;
+    dst->cols += 1;
 }
 
 
-CML_API void cml_ins_self_row(MATRIX *m, size_t dest_row, size_t src_row) {
-    if (m == NULL || dest_row > m->rows || src_row >= m->rows) {
+CML_API void cml_ins_self_row(MATRIX *m, size_t dst_row, size_t src_row) {
+    if (m == NULL || dst_row > m->rows || src_row >= m->rows) {
         errno = EINVAL;
         return;
     }
@@ -903,13 +962,13 @@ CML_API void cml_ins_self_row(MATRIX *m, size_t dest_row, size_t src_row) {
     }
 
     cml_cpy_row(temp, m, 0, src_row);
-    cml_ins_row(m, temp, dest_row, 0);
+    cml_ins_row(m, temp, dst_row, 0);
     cml_free(temp);
 }
 
 
-CML_API void cml_ins_self_col(MATRIX *m, size_t dest_col, size_t src_col) {
-    if (m == NULL || dest_col > m->cols || src_col >= m->cols) {
+CML_API void cml_ins_self_col(MATRIX *m, size_t dst_col, size_t src_col) {
+    if (m == NULL || dst_col > m->cols || src_col >= m->cols) {
         errno = EINVAL;
         return;
     }
@@ -921,7 +980,7 @@ CML_API void cml_ins_self_col(MATRIX *m, size_t dest_col, size_t src_col) {
     }
 
     cml_cpy_col(temp, m, 0, src_col);
-    cml_ins_col(m, temp, dest_col, 0);
+    cml_ins_col(m, temp, dst_col, 0);
     cml_free(temp);
 }
 
@@ -967,78 +1026,78 @@ CML_API void cml_del_col(MATRIX *m, size_t col) {
 }
 
 
-CML_API void cml_adjoin_top(MATRIX *dest, MATRIX *src) {
-    if (dest == NULL || src == NULL || dest == src || dest->cols != src->cols) {
+CML_API void cml_adjoin_top(MATRIX *dst, MATRIX *src) {
+    if (dst == NULL || src == NULL || dst == src || dst->cols != src->cols) {
         errno = EINVAL;
         return;
     }
 
-    vec_reserve(dest->data, vec_len(dest->data) + vec_len(src->data));
+    vec_reserve(dst->data, vec_len(dst->data) + vec_len(src->data));
 
-    if (vec_cap(dest->data) < vec_len(dest->data) + vec_len(src->data)) {
+    if (vec_cap(dst->data) < vec_len(dst->data) + vec_len(src->data)) {
         errno = ENOMEM;
         return;
     }
     
     for (size_t i = src->rows; i-- > 0; ) {
-        cml_ins_row(dest, src, 0, i);
+        cml_ins_row(dst, src, 0, i);
     }
 }
 
 
-CML_API void cml_adjoin_bottom(MATRIX *dest, MATRIX *src) {
-    if (dest == NULL || src == NULL || dest == src || dest->cols != src->cols) {
+CML_API void cml_adjoin_bottom(MATRIX *dst, MATRIX *src) {
+    if (dst == NULL || src == NULL || dst == src || dst->cols != src->cols) {
         errno = EINVAL;
         return;
     }
 
-    vec_reserve(dest->data, vec_len(dest->data) + vec_len(src->data));
+    vec_reserve(dst->data, vec_len(dst->data) + vec_len(src->data));
 
-    if (vec_cap(dest->data) < vec_len(dest->data) + vec_len(src->data)) {
+    if (vec_cap(dst->data) < vec_len(dst->data) + vec_len(src->data)) {
         errno = ENOMEM;
         return;
     }
 
     for (size_t i = 0; i < src->rows; ++i) {
-        cml_ins_row(dest, src, dest->rows, i);
+        cml_ins_row(dst, src, dst->rows, i);
     }
 }
 
 
-CML_API void cml_adjoin_left(MATRIX *dest, MATRIX *src) {
-    if (dest == NULL || src == NULL || dest == src || dest->rows != src->rows) {
+CML_API void cml_adjoin_left(MATRIX *dst, MATRIX *src) {
+    if (dst == NULL || src == NULL || dst == src || dst->rows != src->rows) {
         errno = EINVAL;
         return;
     }
 
-    vec_reserve(dest->data, vec_len(dest->data) + vec_len(src->data));
+    vec_reserve(dst->data, vec_len(dst->data) + vec_len(src->data));
 
-    if (vec_cap(dest->data) < vec_len(dest->data) + vec_len(src->data)) {
+    if (vec_cap(dst->data) < vec_len(dst->data) + vec_len(src->data)) {
         errno = ENOMEM;
         return;
     }
 
     for (size_t j = src->cols; j-- > 0; ) {
-        cml_ins_col(dest, src, 0, j);
+        cml_ins_col(dst, src, 0, j);
     }
 }
 
 
-CML_API void cml_adjoin_right(MATRIX *dest, MATRIX *src) {
-    if (dest == NULL || src == NULL || dest == src || dest->rows != src->rows) {
+CML_API void cml_adjoin_right(MATRIX *dst, MATRIX *src) {
+    if (dst == NULL || src == NULL || dst == src || dst->rows != src->rows) {
         errno = EINVAL;
         return;
     }
 
-    vec_reserve(dest->data, vec_len(dest->data) + vec_len(src->data));
+    vec_reserve(dst->data, vec_len(dst->data) + vec_len(src->data));
 
-    if (vec_cap(dest->data) < vec_len(dest->data) + vec_len(src->data)) {
+    if (vec_cap(dst->data) < vec_len(dst->data) + vec_len(src->data)) {
         errno = ENOMEM;
         return;
     }
     
     for (size_t j = 0; j < src->cols; ++j) {
-        cml_ins_col(dest, src, dest->cols, j);
+        cml_ins_col(dst, src, dst->cols, j);
     }
 }
 
@@ -1645,7 +1704,7 @@ CML_API void __sos_proc(cml_real_t *sos, size_t nb_bq, cml_real_t *in, size_t le
 
     /* if necessary, copy the final result in scratch to output */
     if(dst != out && src == out ) {
-        // void * memcpy ( void * destination, const void * source, size_t num );
+        // void * memcpy ( void * dstination, const void * source, size_t num );
         memcpy((void *)out, (void *)scratch, len * sizeof(cml_real_t));
     }
 
@@ -1712,7 +1771,7 @@ CML_API void cml0_sos_proc(MATRIX *sos, MATRIX *in, MATRIX *scratch, MATRIX *out
             return;
         }
         MATRIX *tmpmat = cml_new(in->rows, 1);
-        cml_set_col(out, out_ch, 0); /* zero final destination */
+        cml_set_col(out, out_ch, 0); /* zero final dstination */
         for (size_t j = 0; j < in->cols; ++j) {
             __sos_proc(
                 MATRIX_CHAN2PTR(sos, j), nb_bq,

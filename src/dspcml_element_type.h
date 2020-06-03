@@ -24,6 +24,8 @@ typedef cml_real_t (*cml_real_func2_t)(cml_real_t, cml_real_t, cml_real_t);
 #define cml_real_abs fabsf
 #define cml_real_sin sinf
 #define cml_real_cos sinf
+#define cml_real_floor floorf
+#define cml_real_ceil ceilf
 #endif
 
 

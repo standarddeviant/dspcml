@@ -26,12 +26,22 @@ ffibuilder = FFI()
 
 ffibuilder.cdef(
 """
-int print_matrix(unsigned long ulptr, char *cptr);
+typedef float cml_real_t;
+size_t maybe_print_errno(char *cptr);
+size_t print_matrix(unsigned long ulptr, char *cptr);
 unsigned long zeros(size_t rows, size_t cols);
-unsigned long rows(unsigned long ulptr);
-unsigned long cols(unsigned long ulptr);
-unsigned long numel(unsigned long ulptr);
-void to_numpy(unsigned long ulptr, float *np_data);
+unsigned long arange(cml_real_t start, cml_real_t stop, cml_real_t step);
+unsigned long tile(unsigned long ulptr, size_t row_copies, size_t col_copies);
+unsigned long new_sos(size_t nb_bq, size_t nb_ch, cml_real_t *coeffs);
+void cpy_submat(unsigned long ulptr_dst, unsigned long ulptr_src, size_t dst_row, size_t dst_col, size_t src_row, size_t src_col, size_t nb_rows, size_t nb_cols);
+size_t rows(unsigned long ulptr);
+size_t cols(unsigned long ulptr);
+size_t numel(unsigned long ulptr);
+void to_numpy(unsigned long ulptr, cml_real_t *np_data);
+unsigned long to_dspcml(cml_real_t *in_data, size_t rows, size_t cols);
+void __sin__(unsigned long ulptr, unsigned long ulptr_opt);
+void __cos__(unsigned long ulptr, unsigned long ulptr_opt);
+void reshape(unsigned long ulptr, size_t new_rows, size_t new_cols);
 """
 )
 

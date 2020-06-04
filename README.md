@@ -1,3 +1,5 @@
+# NOTE: This repository should not be used for anything serious unless and until there are mature tests for correctness.
+
 # DSPCML
 DSPCML is an acronym for Digital Signal Processing C Matrix Library. It is an adaption of the C Matrix Library (CML) referenced here: https://github.com/MichaelJWelsh/cml
 
